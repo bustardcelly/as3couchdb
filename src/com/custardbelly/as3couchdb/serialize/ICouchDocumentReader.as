@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchDocumentReader.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,15 @@ package com.custardbelly.as3couchdb.serialize
 		 * @return Boolean
 		 */
 		function isResultAnError( result:Object ):Boolean
+			
+		/**
+		 * Creates a new CouchDocument based on the supplied document class type and the service result. 
+		 * @param documentClass String
+		 * @param result Object
+		 * @return CouchDocument
+		 */
+		function createDocumentFromResult( documentClass:String, result:Object ):CouchDocument;
+			
 		/**
 		 * Updates the target CouchDocument and its attributes based on the result object. 
 		 * @param document CouchDocument

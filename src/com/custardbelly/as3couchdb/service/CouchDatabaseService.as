@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabaseService.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -53,9 +53,9 @@ package com.custardbelly.as3couchdb.service
 		 * Constructor. 
 		 * @param baseUrl String The base url of the CouchDB instance.
 		 */
-		public function CouchDatabaseService( baseUrl:String )
+		public function CouchDatabaseService( baseUrl:String, request:ICouchRequest = null )
 		{
-			super( baseUrl );
+			super( baseUrl, request );
 			_writer = new CouchDatabaseWriter();
 		}
 		
@@ -79,11 +79,10 @@ package com.custardbelly.as3couchdb.service
 		public function createDatabase( databaseName:String, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.PUT;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + validateDatabaseName( databaseName );
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.PUT, responder );
 		}
 		
 		/**
@@ -94,11 +93,10 @@ package com.custardbelly.as3couchdb.service
 		public function readDatabase( databaseName:String, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.GET;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName;
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
@@ -109,12 +107,11 @@ package com.custardbelly.as3couchdb.service
 		public function deleteDatabase( databaseName:String, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.DELETE;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName;
 			
 			// 200, 404
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.DELETE, responder );
 		}
 		
 		/**
@@ -128,12 +125,11 @@ package com.custardbelly.as3couchdb.service
 			var data:Object = {source: _baseUrl + "/" + databaseName, target: target + "/" + databaseName};
 			
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.POST;
 			request.contentType = CouchContentType.JSON;
 			request.data = _writer.serialize( data );
 			request.url = _baseUrl + "/_replicate";
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.POST, responder );
 		}
 		
 		/**
@@ -146,12 +142,11 @@ package com.custardbelly.as3couchdb.service
 		{
 			var data:Object = {source: target + "/" + databaseName, target: _baseUrl + "/" + databaseName};
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.POST;
 			request.contentType = CouchContentType.JSON;
 			request.data = _writer.serialize( data );
 			request.url = _baseUrl + "/_replicate";
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.POST, responder );
 		}
 		
 		/**
@@ -162,11 +157,10 @@ package com.custardbelly.as3couchdb.service
 		public function getDatabaseInfo( databaseName:String, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.GET;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName;
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
@@ -177,11 +171,10 @@ package com.custardbelly.as3couchdb.service
 		public function getDatabaseChanges( databaseName:String, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.GET;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName + "/_changes";
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
@@ -193,12 +186,11 @@ package com.custardbelly.as3couchdb.service
 		public function compactDatabase( databaseName:String, cleanup:Boolean = false, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.POST;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName + "/_compact";
 			request.url += ( cleanup ) ? "/" + "_view_cleanup" : "";
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.POST, responder );
 		}
 		
 		/**
@@ -209,12 +201,11 @@ package com.custardbelly.as3couchdb.service
 		public function getAllDocuments( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.GET;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName + "/_all_docs";
 			if( includeDocs ) request.url += "?include_docs=true";
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
@@ -225,12 +216,11 @@ package com.custardbelly.as3couchdb.service
 		public function getAllDocumentsBySequence( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.GET;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName + "/_all_docs_by_seq";
 			if( includeDocs ) request.url += "?include_docs=true";
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
@@ -241,11 +231,10 @@ package com.custardbelly.as3couchdb.service
 		public function getUUIDs( amount:int = 1, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.GET;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/_uuids?count=" + amount;
 			
-			makeRequest( request, responder ); 
+			makeRequest( request, CouchRequestMethod.GET, responder ); 
 		}
 		
 		/**
@@ -255,11 +244,10 @@ package com.custardbelly.as3couchdb.service
 		public function list( responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.GET;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/_all_dbs";
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
@@ -267,11 +255,11 @@ package com.custardbelly.as3couchdb.service
 		 * @param baseUrl String
 		 * @return ICouchDatabaseService
 		 */
-		public static function getDatabaseService( baseUrl:String ):ICouchDatabaseService
+		public static function getDatabaseService( baseUrl:String, request:ICouchRequest = null ):ICouchDatabaseService
 		{
 			if( CouchDatabaseService.instances[baseUrl] == null )
 			{
-				CouchDatabaseService.instances[baseUrl] = new CouchDatabaseService( baseUrl );
+				CouchDatabaseService.instances[baseUrl] = new CouchDatabaseService( baseUrl, request );
 			}
 			return CouchDatabaseService.instances[baseUrl];
 		}

@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabase.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,10 @@ package com.custardbelly.as3couchdb.core
 	import com.custardbelly.as3couchdb.service.CouchDatabaseService;
 	
 	/**
+	 * Dispatched upon successful create of a database instance in CouchDB. 
+	 */
+	[Event(name="create", type="com.custardbelly.as3couchdb.event.CouchEvent")]
+	/**
 	 * Dispatched upon successful read in and application of attributes from a database instance in CouchDB. 
 	 */
 	[Event(name="read", type="com.custardbelly.as3couchdb.event.CouchEvent")]
@@ -50,6 +54,7 @@ package com.custardbelly.as3couchdb.core
 	 * 
 	 * <example>
 	 * [DocumentService(url="http://127.0.0.1:5984", name="contacts")]
+	 * [ServiceMediator(name="com.custardbelly.as3couchdb.mediator.CouchDatabaseActionMediator")]
 	 * public class ContactsDatabase extends CouchDatabase
 	 * {
 	 * 	...
@@ -73,7 +78,7 @@ package com.custardbelly.as3couchdb.core
 		/**
 		 * @private
 		 * 
-		 * Service action mediator. 
+		 * Type reference to mediator held on super model. 
 		 */
 		protected var _actionMediator:ICouchDatabaseActionMediator;
 		
@@ -84,7 +89,7 @@ package com.custardbelly.as3couchdb.core
 		{
 			super();
 			db_name = databaseName;
-			_actionMediator = new CouchDatabaseActionMediator( this, CouchDatabaseService.getDatabaseService( baseUrl ) );
+			_actionMediator = _mediator as ICouchDatabaseActionMediator;
 		}
 		
 		/**
@@ -134,6 +139,15 @@ package com.custardbelly.as3couchdb.core
 		public function compact( cleanup:Boolean = false ):void
 		{
 			_actionMediator.handleCompact( cleanup );
+		}
+		
+		/**
+		 * Invokes action mediator to return all documents related to database resolved as the supplied class type. 
+		 * @param documentClass String
+		 */
+		public function getAllDocuments( documentClass:String ):void
+		{
+			_actionMediator.handleGetAllDocuments( documentClass );
 		}
 	}
 }

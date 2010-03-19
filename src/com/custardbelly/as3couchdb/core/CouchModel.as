@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchModel.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,8 @@
  */
 package com.custardbelly.as3couchdb.core
 {
+	import com.custardbelly.as3couchdb.mediator.IServiceMediator;
+	
 	import flash.events.EventDispatcher;
 	
 	/**
@@ -35,6 +37,7 @@ package com.custardbelly.as3couchdb.core
 	public class CouchModel extends EventDispatcher
 	{
 		protected var _entity:CouchModelEntity;
+		protected var _mediator:IServiceMediator;
 		protected var _isDeleted:Boolean;
 		
 		/**
@@ -43,6 +46,7 @@ package com.custardbelly.as3couchdb.core
 		public function CouchModel()
 		{
 			_entity = CouchModelEntity.parse( this );
+			_mediator = _entity.mediator;
 		}
 				
 		/**

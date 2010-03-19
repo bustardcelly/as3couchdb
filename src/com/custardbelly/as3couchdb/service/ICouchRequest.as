@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchRequest.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,7 @@ package com.custardbelly.as3couchdb.service
 		 * @param request URLRequest
 		 * @param responder ICouchServiceResponder
 		 */
-		function execute( request:URLRequest, responder:ICouchServiceResponder ):void;
+		function execute( request:URLRequest, requestType:String, responder:ICouchServiceResponder ):void;
 		/**
 		 * Performs any cleanup prior to garbage collection.
 		 */

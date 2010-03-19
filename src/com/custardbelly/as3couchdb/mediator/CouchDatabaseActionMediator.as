@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabaseActionMediator.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 package com.custardbelly.as3couchdb.mediator
 {
 	import com.custardbelly.as3couchdb.core.CouchDatabase;
+	import com.custardbelly.as3couchdb.core.CouchModel;
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
 	import com.custardbelly.as3couchdb.enum.CouchActionType;
@@ -36,8 +37,11 @@ package com.custardbelly.as3couchdb.mediator
 	import com.custardbelly.as3couchdb.responder.CreateDatabaseResponder;
 	import com.custardbelly.as3couchdb.responder.DeleteDatabaseResponder;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
+	import com.custardbelly.as3couchdb.responder.ReadAllDocumentsResponder;
 	import com.custardbelly.as3couchdb.responder.ReadDatabaseResponder;
+	import com.custardbelly.as3couchdb.service.CouchDatabaseService;
 	import com.custardbelly.as3couchdb.service.ICouchDatabaseService;
+	import com.custardbelly.as3couchdb.service.ICouchRequest;
 
 	/**
 	 * CouchDatabaseActionMediator is an ICouchDatabaseActionMediator implementation that handles invoking operations on a service related to a given CouchDatabase instance. 
@@ -54,14 +58,23 @@ package com.custardbelly.as3couchdb.mediator
 		protected var _responder:BasicCouchResponder;
 		
 		/**
-		 * Constructor. 
-		 * @param database CouchDatabase The target database to perform service operations on.
-		 * @param service ICouchDatabaseService The ICouchDatabaseService implementation to invoke operations on.
+		 * Constructor.
 		 */
-		public function CouchDatabaseActionMediator( database:CouchDatabase, service:ICouchDatabaseService )
+		public function CouchDatabaseActionMediator()
 		{
-			_database = database;
-			_service = service;
+			// empty.
+		}
+		
+		/**
+		 * Initializes the mediator to establish the service in which to communicate actions related to the target model. 
+		 * @param target CouchModel
+		 * @param baseUrl String
+		 * @param databaseName String
+		 */
+		public function initialize( target:CouchModel, baseUrl:String, databaseName:String, request:ICouchRequest = null ):void
+		{
+			_database = target as CouchDatabase;
+			_service = CouchDatabaseService.getDatabaseService( baseUrl, request );
 			_responder = new BasicCouchResponder( handleServiceResult, handleServiceFault );
 		}
 		
@@ -170,6 +183,16 @@ package com.custardbelly.as3couchdb.mediator
 		public function handleCompact( cleanup:Boolean ):void
 		{
 			_service.compactDatabase( _database.db_name, cleanup, _responder );
+		}
+		
+		/**
+		 * Invokes the ICouchDatabaseService to retrieve all documents from target CouchDatabase and resolve each return as a type of CouchDocument class. 
+		 * @param documentClass String
+		 */
+		public function handleGetAllDocuments( documentClass:String ):void
+		{
+			var serviceResponder:ReadAllDocumentsResponder = new ReadAllDocumentsResponder( documentClass, _responder );
+			_service.getAllDocuments( _database.db_name, true, serviceResponder );
 		}
 	}
 }

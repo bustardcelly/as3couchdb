@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchService.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -64,10 +64,10 @@ package com.custardbelly.as3couchdb.service
 		 * @param request URLRequest
 		 * @param responder ICouchServiceResponder
 		 */
-		protected function makeRequest( request:URLRequest, responder:ICouchServiceResponder = null ):void
+		protected function makeRequest( request:URLRequest, requestType:String, responder:ICouchServiceResponder = null ):void
 		{
 			// TODO: Push to queue.
-			_request.execute( request, responder );
+			_request.execute( request, requestType, responder );
 		}
 		
 		/**

@@ -1,3 +1,4 @@
+==============================================================================
 Copyright (c) 2010 Todd Anderson http://www.custardbelly.com/blog
  
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -17,12 +18,36 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+==============================================================================
 
-----------------------------------------------------------------------------
+---- About ----
 
---------------
-Requirements |
---------------
+as3couchdb is an ActionScript 3 clientside API for interacting with a CouchDB instance.
+
+---- Requirements -----
+
+The following libraries are required to compile the as3couchdb library project:
+
+=============
+as3corelib
+=============
 The as3couchdb library requires the as3corelib project (found at http://code.google.com/p/as3corelib/).
 The classes from the as3corelib project that as3couchdb utilizes is SHA1 for generating unique ids
 on the client side, and JSON for serializing objects for CouchDB service communication.
+
+=============
+as3httpclient
+=============
+The as3couchdb library requires the as3httpclient project (found at http://code.google.com/p/as3httpclientlib).
+as3couchdb utilizes the as3httpclient API to make proper PUT and DELETE requests on the CouchDB instance.
+as3httpclient has a dependency on the following libraries: as3corelib and as3crypto.
+
+=============
+as3crypto
+=============
+The as3crypto library is used by the as3httpclient (see above requirement).
+as3crypt can be found at http://code.google.com/p/as3crypto/
+
+---- Usage ----
+
+

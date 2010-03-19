@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabaseReader.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -61,6 +61,16 @@ package com.custardbelly.as3couchdb.serialize
 			{
 				database[attribute] = result[attribute];
 			}
+		}
+		
+		/**
+		 * Returns a list of document objects based on the result. 
+		 * @param result Object
+		 */
+		public function getDocumentListFromResult( result:Object ):Array
+		{
+			var documents:Array = result.rows;
+			return documents;
 		}
 	}
 }

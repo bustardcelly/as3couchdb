@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ReadDatabaseResponder.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -70,7 +70,7 @@ package com.custardbelly.as3couchdb.responder
 		public function handleResult( value:CouchServiceResult ):void
 		{
 			var result:Object = value.data;
-			if( result["error"] )
+			if( _reader.isResultAnError( result ) )
 			{
 				handleFault( new CouchServiceFault( result["error"], result["reason"] ) );
 			}

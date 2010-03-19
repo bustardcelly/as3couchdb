@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocumentService.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -73,9 +73,9 @@ package com.custardbelly.as3couchdb.service
 		 * @param baseUrl String The base url of the CouchDB instance
 		 * @param databaseName String The database targeted.
 		 */
-		public function CouchDocumentService( baseUrl:String, databaseName:String )
+		public function CouchDocumentService( baseUrl:String, databaseName:String, request:ICouchRequest = null )
 		{
-			super( baseUrl );
+			super( baseUrl, request );
 			_databaseName = databaseName;
 			_writer = new CouchDocumentWriter();
 		}
@@ -89,11 +89,10 @@ package com.custardbelly.as3couchdb.service
 		public function readDocument( documentId:String, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.GET;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + _databaseName + "/" + documentId;
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
@@ -104,11 +103,10 @@ package com.custardbelly.as3couchdb.service
 		public function createDocument( documentId:String, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.PUT;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + _databaseName + "/" + documentId;
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.PUT, responder );
 		}
 		
 		/**
@@ -136,12 +134,11 @@ package com.custardbelly.as3couchdb.service
 			}
 			
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.PUT;
 			request.contentType = CouchContentType.JSON;
 			request.data = data;
 			request.url = _baseUrl + "/" + _databaseName + "/" + id;
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.PUT, responder );
 		}
 		
 		/**
@@ -153,11 +150,10 @@ package com.custardbelly.as3couchdb.service
 		public function deleteDocument( documentId:String, documentRevision:String, responder:ICouchServiceResponder = null ):void
 		{
 			var request:URLRequest = new URLRequest();
-			request.method = CouchRequestMethod.DELETE;
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + _databaseName + "/" + documentId + "?rev=" + documentRevision;
 			
-			makeRequest( request, responder );
+			makeRequest( request, CouchRequestMethod.DELETE, responder );
 		}
 		
 		/**
@@ -165,11 +161,11 @@ package com.custardbelly.as3couchdb.service
 		 * @param baseUrl String
 		 * @return ICouchDocumentService
 		 */
-		public static function getDocumentService( baseUrl:String, databaseName:String ):ICouchDocumentService
+		public static function getDocumentService( baseUrl:String, databaseName:String, request:ICouchRequest = null ):ICouchDocumentService
 		{
 			if( CouchDocumentService.instances[baseUrl + "/" + databaseName] == null )
 			{
-				CouchDocumentService.instances[baseUrl + "/" + databaseName] = new CouchDocumentService( baseUrl, databaseName );
+				CouchDocumentService.instances[baseUrl + "/" + databaseName] = new CouchDocumentService( baseUrl, databaseName, request );
 			}
 			return CouchDocumentService.instances[baseUrl + "/" + databaseName];
 		}

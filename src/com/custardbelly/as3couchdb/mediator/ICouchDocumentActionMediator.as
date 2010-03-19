@@ -4,7 +4,7 @@ package com.custardbelly.as3couchdb.mediator
 	 * ICouchDocumentActionMediator is a mediator for invoking service operations in relation to a target document.
 	 * @author toddanderson
 	 */
-	public interface ICouchDocumentActionMediator
+	public interface ICouchDocumentActionMediator extends IServiceMediator
 	{
 		/**
 		 * Invokes service to read in document. 

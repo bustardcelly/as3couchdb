@@ -4,7 +4,7 @@ package com.custardbelly.as3couchdb.mediator
 	 * ICouchDatabaseActionMediator is a mediator for invoking service operations relate to a target database. 
 	 * @author toddanderson
 	 */
-	public interface ICouchDatabaseActionMediator
+	public interface ICouchDatabaseActionMediator extends IServiceMediator
 	{
 		/**
 		 * Invokes service to create a database. If database exists, reads in database information.
@@ -32,5 +32,10 @@ package com.custardbelly.as3couchdb.mediator
 		 * @param cleanup Boolean
 		 */
 		function handleCompact( cleanup:Boolean ):void;
+		/**
+		 * Invokes service to request all documents and resolve each document as a type of supplied class. 
+		 * @param documentClass String
+		 */
+		function handleGetAllDocuments( documentClass:String ):void;
 	}
 }

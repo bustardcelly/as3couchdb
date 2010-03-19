@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocumentReader.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ package com.custardbelly.as3couchdb.serialize
 	import com.custardbelly.as3couchdb.core.CouchDocument;
 	
 	import flash.utils.Dictionary;
+	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 
 	/**
@@ -65,6 +66,21 @@ package com.custardbelly.as3couchdb.serialize
 		}
 		
 		/**
+		 * Creates a new CouchDocument based on the supplied document class type and the service result. 
+		 * @param documentClass String
+		 * @param result Object
+		 * @return CouchDocument
+		 */
+		public function createDocumentFromResult( documentClass:String, result:Object ):CouchDocument
+		{
+			var documentClazz:Class = getDefinitionByName( documentClass ) as Class;
+			var document:CouchDocument = new documentClazz() as CouchDocument;
+			document.id = result["_id"];
+			updateDocumentFromRead( document, result );
+			return document;
+		}
+		
+		/**
 		 * Updates the target CouchDocument and its attributes based on the result object. 
 		 * @param document CouchDocument
 		 * @param result Object
@@ -79,7 +95,8 @@ package com.custardbelly.as3couchdb.serialize
 				try 
 				{
 					// try an apply the attributes held on the result to the document.
-					document[attribute] = result[attribute];
+					if( !reservedProperties.hasOwnProperty( attribute ) )
+						document[attribute] = result[attribute];
 				}
 				catch( e:Error )
 				{

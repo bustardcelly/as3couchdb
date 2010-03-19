@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchRequest.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,11 +44,9 @@ package com.custardbelly.as3couchdb.service
 	 * CouchRequest handles making and responding to requests to the CouchDB instance.
 	 * @author toddanderson
 	 */
-	public class CouchRequest implements ICouchRequest
+	public class CouchRequest extends AbstractCouchRequest
 	{
 		protected var  _loader:URLLoader;
-		protected var _responder:ICouchServiceResponder;
-		protected var _isInactive:Boolean;
 		
 		/**
 		 * Constructor.
@@ -88,28 +86,12 @@ package com.custardbelly.as3couchdb.service
 		/**
 		 * @private
 		 * 
-		 * Notifies optional service responder of an error in communication. 
-		 * @param type String
-		 * @param message String
-		 */
-		protected function respondToError( type:String, message:String ):void
-		{
-			if( _isInactive ) return;
-			
-			if( _responder )
-				_responder.handleFault( new CouchServiceFault( type, message ) );
-		}
-		
-		/**
-		 * @private
-		 * 
 		 * Event handler for HTTPStatus. 
 		 * @param evt HTTPStatusEvent
 		 */
 		protected function handleResponseStatus( evt:HTTPStatusEvent ):void
 		{
-			if( _isInactive ) return;
-			_responder.status = evt.status;
+			respondToStatus( evt.status );
 		}
 		
 		/**
@@ -120,7 +102,7 @@ package com.custardbelly.as3couchdb.service
 		 */
 		protected function handleResponseError( evt:IOErrorEvent ):void
 		{
-			respondToError( evt.type.toUpperCase(), evt.text );
+			respondToFault( evt.type.toUpperCase(), evt.text );
 		}
 		
 		/**
@@ -131,7 +113,7 @@ package com.custardbelly.as3couchdb.service
 		 */
 		protected function handleResponseSecurityError( evt:SecurityErrorEvent ):void
 		{
-			respondToError( evt.type.toUpperCase(), evt.text );
+			respondToFault( evt.type.toUpperCase(), evt.text );
 		}
 		
 		/**
@@ -142,33 +124,28 @@ package com.custardbelly.as3couchdb.service
 		 */
 		protected function handleResponseComplete( evt:Event ):void
 		{
-			if( _isInactive ) return;
-			
 			var result:Object = ( evt.target as URLLoader ).data;
-			if( _responder )
-				_responder.handleResult( new CouchServiceResult( CouchEvent.RESULT, JSON.decode(result.toString()) ) );
+			respondToResult( CouchEvent.RESULT, JSON.decode( result.toString() ) );
 		}
 		
 		/**
-		 * Executes a request on the service. 
-		 * @param request URLRequest
-		 * @param responder ICouchServiceResponder
+		 * @inherit
 		 */
-		public function execute( request:URLRequest, responder:ICouchServiceResponder ):void
+		override public function execute( request:URLRequest, requestType:String, responder:ICouchServiceResponder ):void
 		{
-			_responder = responder;
+			super.execute( request, requestType, responder );
+			request.method = requestType;
 			_loader.load( request );
 		}
 		
 		/**
-		 * Performs any cleanup.
+		 * @inherit
 		 */
-		public function dispose():void
+		override public function dispose():void
 		{
+			super.dispose();
 			removeListeners();
 			_loader = null;
-			_responder = null;
-			_isInactive = true;
 		}
 	}
 }

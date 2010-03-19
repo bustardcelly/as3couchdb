@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocumentActionMediator.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 package com.custardbelly.as3couchdb.mediator
 {
 	import com.custardbelly.as3couchdb.core.CouchDocument;
+	import com.custardbelly.as3couchdb.core.CouchModel;
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
 	import com.custardbelly.as3couchdb.enum.CouchActionType;
@@ -37,7 +38,9 @@ package com.custardbelly.as3couchdb.mediator
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 	import com.custardbelly.as3couchdb.responder.ReadDocumentResponder;
 	import com.custardbelly.as3couchdb.responder.UpdateDocumentResponder;
+	import com.custardbelly.as3couchdb.service.CouchDocumentService;
 	import com.custardbelly.as3couchdb.service.ICouchDocumentService;
+	import com.custardbelly.as3couchdb.service.ICouchRequest;
 
 	/**
 	 * CouchDocumentActionMediator is an ICouchDocumentActionMediator implementation that handle service operations in relation to a target CouchDocument instance.
@@ -51,16 +54,24 @@ package com.custardbelly.as3couchdb.mediator
 		
 		/**
 		 * Constructor.
-		 * @param document CouchDocument The target document to perform service operations on.
-		 * @param service ICouchDocumentService The service to perform operations on with regards to the target document.
-		 * 
 		 */
-		public function CouchDocumentActionMediator( document:CouchDocument, service:ICouchDocumentService )
+		public function CouchDocumentActionMediator()
 		{
-			_service = service;
-			_document = document;
+			// empty.
+		}
+		
+		/**
+		 * Initializes the mediator to establish the service in which to communicate actions related to the target model. 
+		 * @param target CouchModel
+		 * @param baseUrl String
+		 * @param databaseName String
+		 */
+		public function initialize( target:CouchModel, baseUrl:String, databaseName:String, request:ICouchRequest = null ):void
+		{
+			_document = target as CouchDocument;
+			_service = CouchDocumentService.getDocumentService( baseUrl, databaseName, request );
 			// Create basic responder to handle result and fault from service.
-			_serviceResponder = new BasicCouchResponder( handleServiceResult, handleServiceFault );
+			_serviceResponder = new BasicCouchResponder( handleServiceResult, handleServiceFault );	
 		}
 		
 		/**

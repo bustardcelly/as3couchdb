@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchModelEntity.as</p>
- * <p>Version: 0.1</p>
+ * <p>Version: 0.2</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,12 @@
  */
 package com.custardbelly.as3couchdb.core
 {	
+	import com.custardbelly.as3couchdb.mediator.IServiceMediator;
+	import com.custardbelly.as3couchdb.service.ICouchRequest;
+	
 	import flash.errors.IllegalOperationError;
 	import flash.utils.describeType;
+	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 
 	/**
@@ -38,16 +42,18 @@ package com.custardbelly.as3couchdb.core
 	{
 		protected var _baseUrl:String;
 		protected var _databaseName:String;
+		protected var _mediator:IServiceMediator;
 		
 		/**
 		 * Constructor. 
 		 * @param baseUrl String
 		 * @param databaseName String
 		 */
-		public function CouchModelEntity( baseUrl:String, databaseName:String )
+		public function CouchModelEntity( baseUrl:String, databaseName:String, mediator:IServiceMediator )
 		{
 			_baseUrl = baseUrl;
 			_databaseName = databaseName;
+			_mediator = mediator;
 		}
 		
 		/**
@@ -69,6 +75,25 @@ package com.custardbelly.as3couchdb.core
 		}
 		
 		/**
+		 * Returns the IServiceMediator implementation to use in communication between service and model. 
+		 * @return IServiceMediator
+		 */
+		public function get mediator():IServiceMediator
+		{
+			return _mediator;
+		}
+		
+		/**
+		 * Throw a RTE if model is not validly annotated wit DocumentService and ServiceMediator.
+		 * @param className String The model class name that is missing metadata.
+		 * @param annotationType String The missing annotation type.
+		 */
+		private static function throwErrorForAnnotation( className:String, annotationType:String ):void
+		{
+			throw new IllegalOperationError( "The CouchModel instance [" + className + "] must be annotated with [" + annotationType + "] metadata tag." );
+		}
+		
+		/**
 		 * Parses metadata held on the target CouchModel instance and returns a new CouchModelEntity instance.
 		 * @throws IllegalOperationError IllegalOperationError if required metadata is not found. 
 		 * @param model CouchModel The target CouchModel instance to obtain required metadata information from with regards to the base url and database name of CouchDB instance.
@@ -76,17 +101,38 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public static function parse( model:CouchModel ):CouchModelEntity
 		{
+			// Get class manifest
 			var xml:XML = describeType( model );
-			var serviceNode:XMLList = xml.metadata.(@name=="DocumentService");
+			
+			// Parse DocumentService
+			var serviceNode:XMLList = xml.metadata.(@name == "DocumentService");
 			// If not metadata available, throw RTE.
-			if( serviceNode.length() == 0 )
-			{
-				throw new IllegalOperationError( "The CouchModel instance [" + getQualifiedClassName(model) + "] must be annotated with [DocumentService] metadata tag." );	
-			}
-			// Else create new instance of CouchEntityModel.
+			if( serviceNode.length() == 0 ) throwErrorForAnnotation( getQualifiedClassName(model), "DocumentService" );
+			// Else establish document service values.
 			var url:String = serviceNode.arg.(@key=="url").@value;
 			var name:String = serviceNode.arg.(@key=="name").@value;
-			return new CouchModelEntity( url, name );
+			
+			// Parse ICouchRequest implementation.
+			var request:ICouchRequest;
+			// Do not throw RTE is no request type added. Default is used as CouchRequest.
+			var requestNode:XMLList = xml.metadata.(@name == "RequestType");
+			if( requestNode.length() == 1 )
+			{
+				var requestClass:Class = getDefinitionByName( requestNode.arg.(@key=="name").@value ) as Class;
+				request = new requestClass() as ICouchRequest;
+			}
+			
+			// Parse ServiceMediator
+			var mediatorNode:XMLList = xml.metadata.(@name == "ServiceMediator");
+			// If not metadata available for mediator, throw RTE
+			if( mediatorNode.length() == 0 ) throwErrorForAnnotation( getQualifiedClassName(model), "ServiceMediator" );
+			// Else create a new instance of the mediator.
+			var mediatorClass:Class = getDefinitionByName( mediatorNode.arg.(@key=="name").@value ) as Class;
+			var mediator:IServiceMediator = new mediatorClass() as IServiceMediator;
+			mediator.initialize( model, url, name, request );
+			
+			// Pass back a new entity.
+			return new CouchModelEntity( url, name, mediator );
 		}
 	}
 }
