@@ -45,7 +45,7 @@ package com.custardbelly.as3couchdb.responder
 		public function CreateDocumentResponder( document:CouchDocument, responder:ICouchServiceResponder )
 		{
 			// Notify super of a save action.
-			super( document, CouchActionType.SAVE, responder );
+			super( document, CouchActionType.CREATE, responder );
 		}
 		
 		/**

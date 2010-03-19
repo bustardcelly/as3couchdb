@@ -117,7 +117,7 @@ package com.custardbelly.as3couchdb.mediator
 			// Create the appropriate service responder based on document id.
 			// If the document id is null, it is a new document instance and should instruct the service to create the document first.
 			var responder:ICouchServiceResponder = ( _document.id )
-													? new UpdateDocumentResponder( _document, CouchActionType.SAVE, _serviceResponder )
+													? new UpdateDocumentResponder( _document, CouchActionType.UPDATE, _serviceResponder )
 													: new CreateDocumentResponder( _document, _serviceResponder );
 			_service.saveDocument( _document, responder );
 		}

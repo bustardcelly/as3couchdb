@@ -86,9 +86,18 @@ package com.custardbelly.as3couchdb.core
 		}
 		
 		/**
+		 * Invokes the action mediator to create and save this document instance ot he CouchDB instance. 
+		 * 
+		 */
+		public function create():void
+		{
+			_actionMediator.handleSave();
+		}
+		
+		/**
 		 * Invokes the action mediator to save this document instance to the CouchDB database.
 		 */
-		public function save():void
+		public function update():void
 		{
 			_actionMediator.handleSave();
 		}

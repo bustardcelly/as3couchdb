@@ -34,7 +34,7 @@ package com.custardbelly.as3couchdb.enum
 	{
 		public static const CREATE:String = "create";
 		public static const READ:String = "read";
-		public static const SAVE:String = "save";
+		public static const UPDATE:String = "update";
 		public static const DELETE:String = "delete";
 		
 		public static const READ_ALL:String = "readAll";

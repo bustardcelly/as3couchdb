@@ -46,7 +46,7 @@ package com.custardbelly.as3couchdb.responder
 		 */
 		public function CreateDatabaseResponder( database:CouchDatabase, responder:ICouchServiceResponder)
 		{
-			super(database, CouchActionType.SAVE, responder);
+			super(database, CouchActionType.CREATE, responder);
 		}
 		
 		/**
