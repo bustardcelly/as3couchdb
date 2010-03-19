@@ -183,7 +183,7 @@ var contact:ContactDocument = new ContactDocument();
 contact.firstName = firstNameField.text;
 contact.lastName = lastNameField.text;
 contact.email = emailField.text;
-contact.addEventListener( CouchActionType.SAVE, handleContactSave );
+contact.addEventListener( CouchActionType.CREATE, handleContactSave );
 contact.addEventListener( CouchEvent.FAULT, handleContactFault );
 contact.create();
 
