@@ -185,9 +185,10 @@ contact.lastName = lastNameField.text;
 contact.email = emailField.text;
 contact.addEventListener( CouchActionType.SAVE, handleContactSave );
 contact.addEventListener( CouchEvent.FAULT, handleContactFault );
-contact.save();
+contact.create();
 
 [/code]
 
-The save() method is used for Create and Update. The read() method Reads the document from the
-database and populates the model. The remove() method Deletes the document from the database.
+The create() method is used for Create and Update. The read() method Reads the document from the
+database and populates the model. The update() method saves any changes to the database instance.
+The remove() method Deletes the document from the database.
