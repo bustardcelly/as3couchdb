@@ -24,6 +24,8 @@
  * <p>Licensed under The MIT License</p>
  * <p>Redistributions of files must retain the above copyright notice.</p>
  */
+// TODO: Support for upload of design documents.
+// TODO: Support for upload of attachements.
 package com.custardbelly.as3couchdb.service
 {
 	import com.custardbelly.as3couchdb.enum.CouchContentType;
@@ -246,6 +248,21 @@ package com.custardbelly.as3couchdb.service
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/_all_dbs";
+			
+			makeRequest( request, CouchRequestMethod.GET, responder );
+		}
+		
+		/**
+		 * Makes request on design document in CouchDB instance. 
+		 * @param id String
+		 * @param responder ICouchServiceResponder
+		 */
+		public function getDocumentsFromView( databaseName:String, documentName:String, viewName:String, byKeyValue:String = null, responder:ICouchServiceResponder = null ):void
+		{
+			var request:URLRequest = new URLRequest();
+			request.contentType = CouchContentType.JSON;
+			request.url = _baseUrl + "/" + databaseName + "/_design/" + documentName + "/_view/" + viewName;
+			if( byKeyValue ) request.url += "?key=\"" + byKeyValue + "\"";
 			
 			makeRequest( request, CouchRequestMethod.GET, responder );
 		}

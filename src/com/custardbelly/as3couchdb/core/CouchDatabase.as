@@ -143,11 +143,24 @@ package com.custardbelly.as3couchdb.core
 		
 		/**
 		 * Invokes action mediator to return all documents related to database resolved as the supplied class type. 
-		 * @param documentClass String
+		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specified type of model.
 		 */
 		public function getAllDocuments( documentClass:String ):void
 		{
 			_actionMediator.handleGetAllDocuments( documentClass );
+		}
+		
+		/**
+		 * Invokes action mediator to return all documents returned from a design document view, filter by optional key value. 
+		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a sepcified type of model.
+		 * @param designDocumentName String The design document name within the database.
+		 * @param viewName String The view name to query on which the map/reduce methods reside.
+		 * @param keyValue String Optional filter on results by key type.
+		 * 
+		 */
+		public function getDocumentsFromView( documentClass:String, designDocumentName:String, viewName:String, keyValue:String = null ):void
+		{
+			_actionMediator.handleGetDocumentsFromView( documentClass, designDocumentName, viewName, keyValue );
 		}
 	}
 }

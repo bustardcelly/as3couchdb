@@ -27,21 +27,28 @@ package com.custardbelly.as3couchdb.responder
 		
 		public function handleResult( value:CouchServiceResult ):void
 		{
-			// TODO: Check for fault.
-			var documents:Array = _databaseReader.getDocumentListFromResult( value.data );
-			
-			var i:int;
-			var document:CouchDocument;
-			var documentList:Array = [];
-			for( i = 0; i < documents.length; i++ )
+			var result:Object = value.data;
+			if( _databaseReader.isResultAnError( result ) )
 			{
-				// Documents are returned form /_all_docs as {doc:Object, id:String, key:String, value:Object}
-				// Supply the doc property to the reader.
-				document = _documentReader.createDocumentFromResult( _documentClass, documents[i].doc );
-				documentList.push( document );
+				handleFault( new CouchServiceFault( result["error"], result["reason"] ) );
 			}
-			
-			if( _responder ) _responder.handleResult( new CouchServiceResult( CouchActionType.READ_ALL, documentList ) );
+			else
+			{
+				var documents:Array = _databaseReader.getDocumentListFromResult( result );
+				
+				var i:int;
+				var document:CouchDocument;
+				var documentList:Array = [];
+				for( i = 0; i < documents.length; i++ )
+				{
+					// Documents are returned from /_all_docs as {doc:Object, id:String, key:String, value:Object}
+					// Supply the doc property to the reader.
+					document = _documentReader.createDocumentFromResult( _documentClass, documents[i].doc );
+					documentList.push( document );
+				}
+				
+				if( _responder ) _responder.handleResult( new CouchServiceResult( CouchActionType.READ_DOCUMENTS, documentList ) );
+			}
 		}
 		
 		public function handleFault( value:CouchServiceFault ):void

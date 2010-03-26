@@ -34,8 +34,16 @@ package com.custardbelly.as3couchdb.mediator
 		function handleCompact( cleanup:Boolean ):void;
 		/**
 		 * Invokes service to request all documents and resolve each document as a type of supplied class. 
-		 * @param documentClass String
+		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
 		 */
 		function handleGetAllDocuments( documentClass:String ):void;
+		/**
+		 * Invokes service to request documents based on design view map/reduce with optional key value filter. 
+		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
+		 * @param designDocumentName String
+		 * @param viewName String
+		 * @param keyValue String
+		 */
+		function handleGetDocumentsFromView( documentClass:String, designDocumentName:String, viewName:String, keyValue:String ):void;
 	}
 }

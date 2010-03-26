@@ -37,6 +37,6 @@ package com.custardbelly.as3couchdb.enum
 		public static const UPDATE:String = "update";
 		public static const DELETE:String = "delete";
 		
-		public static const READ_ALL:String = "readAll";
+		public static const READ_DOCUMENTS:String = "readDocuments";
 	}
 }

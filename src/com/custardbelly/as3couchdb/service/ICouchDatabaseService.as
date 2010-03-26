@@ -102,7 +102,12 @@ package com.custardbelly.as3couchdb.service
 		 * @param responder ICouchServiceResponder
 		 */
 		function getAllDocumentsBySequence( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):void;
-		
+		/**
+		 * Makes request on design document in CouchDB instance. 
+		 * @param id String
+		 * @param responder ICouchServiceResponder
+		 */
+		function getDocumentsFromView( databaseName:String, documentName:String, viewName:String, byKeyValue:String = null, responder:ICouchServiceResponder = null ):void;
 		/**
 		 * Requests the list of databases in the target CouchDB instance. 
 		 * @param responder ICouchServiceResponder

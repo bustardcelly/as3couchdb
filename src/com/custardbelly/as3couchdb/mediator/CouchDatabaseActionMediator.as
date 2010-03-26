@@ -39,6 +39,7 @@ package com.custardbelly.as3couchdb.mediator
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 	import com.custardbelly.as3couchdb.responder.ReadAllDocumentsResponder;
 	import com.custardbelly.as3couchdb.responder.ReadDatabaseResponder;
+	import com.custardbelly.as3couchdb.responder.ReadDocumentsFromViewResponder;
 	import com.custardbelly.as3couchdb.service.CouchDatabaseService;
 	import com.custardbelly.as3couchdb.service.ICouchDatabaseService;
 	import com.custardbelly.as3couchdb.service.ICouchRequest;
@@ -187,12 +188,25 @@ package com.custardbelly.as3couchdb.mediator
 		
 		/**
 		 * Invokes the ICouchDatabaseService to retrieve all documents from target CouchDatabase and resolve each return as a type of CouchDocument class. 
-		 * @param documentClass String
+		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
 		 */
 		public function handleGetAllDocuments( documentClass:String ):void
 		{
 			var serviceResponder:ReadAllDocumentsResponder = new ReadAllDocumentsResponder( documentClass, _responder );
 			_service.getAllDocuments( _database.db_name, true, serviceResponder );
+		}
+		
+		/**
+		 * Invokes service to request documents based on design view map/reduce with optional key value filter. 
+		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
+		 * @param designDocumentName String
+		 * @param viewName String
+		 * @param keyValue String
+		 */
+		public function handleGetDocumentsFromView( documentClass:String, designDocumentName:String, viewName:String, keyValue:String ):void
+		{
+			var serviceResponder:ReadDocumentsFromViewResponder = new ReadDocumentsFromViewResponder( documentClass, _responder );
+			_service.getDocumentsFromView( _database.db_name, designDocumentName, viewName, keyValue, serviceResponder );
 		}
 	}
 }
