@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocument.as</p>
- * <p>Version: 0.2</p>
+ * <p>Version: 0.3</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -82,7 +82,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function read( id:String ):void
 		{
-			_actionMediator.handleRead( id );
+			_actionMediator.doRead( id );
 		}
 		
 		/**
@@ -91,7 +91,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function create():void
 		{
-			_actionMediator.handleSave();
+			_actionMediator.doSave();
 		}
 		
 		/**
@@ -99,7 +99,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function update():void
 		{
-			_actionMediator.handleSave();
+			_actionMediator.doSave();
 		}
 		
 		/**
@@ -107,7 +107,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function remove():void
 		{
-			_actionMediator.handleDelete();
+			_actionMediator.doDelete();
 		}
 		
 		/**

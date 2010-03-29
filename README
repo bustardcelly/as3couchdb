@@ -102,6 +102,11 @@ The models are extensions to EventDispatcher and the ServiceMediator handles dis
 related to response from the CouchDB service. You can listen for these corresponding CRUD events on the models as well
 as basic result and fault events.
 
+---- Sessions ----
+Additionaly there is another model to be used as a persistant session: CouchSession. The use of the session enforces
+more security when making service request on the CouchDB by establishing a session based on a cookie returned on user 
+credentials.
+
 ---- Examples ----
 
 To start off, you would create custom models in your application that extend CouchDatabase and CouchDocument.
@@ -142,6 +147,21 @@ public class ContactDocument extends CouchDocument
 		super();
 	}
 }
+
+The following is an example of a CouchSession model:
+
+[code]
+[DocumentService(url="http://127.0.0.1:5984", name="contacts")]
+[ServiceMediator(name="com.custardbelly.as3couchdb.mediator.CouchSessionActionMediator")]
+[RequestType(name="com.custardbelly.as3couchdb.service.HTTPSessionRequest")]
+public class ContactSession extends CouchSession
+{
+	public function ContactSession()
+	{
+		super();
+	}
+}
+[/code]
 
 [/code]
 
@@ -192,3 +212,20 @@ contact.create();
 The create() method is used for Create and Update. The read() method Reads the document from the
 database and populates the model. The update() method saves any changes to the database instance.
 The remove() method Deletes the document from the database.
+
+Additionally, you an add security by establishing a session. The CouchSession model handles
+interacting with the service through a mediator to request a cookie to use fro each subsequent request.
+Once a session is started, it is assumed under the hood that any following requests are made against a 
+certain user session.
+
+To start a session, such as requesting a user to log in to begin making requests to the CouchDB instance based
+on a session cookie:
+
+[code]
+var session:CouchSession = new ContactSession();
+session.addEventListener( CouchActionType.SESSION_CREATE, handleSessionCreate );
+session.create( new CouchUser( username, password ) );
+[/code]
+
+Any subsequent request on documents and databases will be based on the current session. as3couchdb handles renewing
+a session after a defined time lapse (the default time lapse for CouchDB is 10 minutes. This can be modified in the CouchDB instance).

@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabaseActionMediator.as</p>
- * <p>Version: 0.2</p>
+ * <p>Version: 0.3</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,7 @@ package com.custardbelly.as3couchdb.mediator
 	import com.custardbelly.as3couchdb.service.ICouchRequest;
 
 	/**
-	 * CouchDatabaseActionMediator is an ICouchDatabaseActionMediator implementation that handles invoking operations on a service related to a given CouchDatabase instance. 
+	 * CouchDatabaseActionMediator is an ICouchDatabaseActionMediator implementation that dos invoking operations on a service related to a given CouchDatabase instance. 
 	 * @author toddanderson
 	 */
 	public class CouchDatabaseActionMediator implements ICouchDatabaseActionMediator
@@ -54,7 +54,7 @@ package com.custardbelly.as3couchdb.mediator
 		protected var _service:ICouchDatabaseService;
 		/**
 		 * @private
-		 * A basic responder to handle result and fault from service operations. 
+		 * A basic responder to do result and fault from service operations. 
 		 */
 		protected var _responder:BasicCouchResponder;
 		
@@ -71,6 +71,7 @@ package com.custardbelly.as3couchdb.mediator
 		 * @param target CouchModel
 		 * @param baseUrl String
 		 * @param databaseName String
+		 * @param request ICouchRequest The ICouchRequest implmementation to forward requests through.
 		 */
 		public function initialize( target:CouchModel, baseUrl:String, databaseName:String, request:ICouchRequest = null ):void
 		{
@@ -109,9 +110,9 @@ package com.custardbelly.as3couchdb.mediator
 		 * Responder method for the sucess of database creation. Forwards on to reading in values for the database. 
 		 * @param result CouchServiceResult
 		 */
-		protected function handleCreateResult( result:CouchServiceResult ):void
+		protected function doCreateResult( result:CouchServiceResult ):void
 		{
-			handleRead( CouchActionType.CREATE );
+			doRead( CouchActionType.CREATE );
 		}
 		
 		/**
@@ -121,21 +122,25 @@ package com.custardbelly.as3couchdb.mediator
 		 * @param fault
 		 * 
 		 */
-		protected function handleCreateFault( fault:CouchServiceFault ):void
+		protected function doCreateFault( fault:CouchServiceFault ):void
 		{
 			if( fault.type == CouchFaultType.DATABASE_ALREADY_EXISTS )
 			{
-				handleRead( CouchActionType.CREATE );
+				doRead( CouchActionType.CREATE );
+			}
+			else
+			{
+				handleServiceFault( fault );
 			}
 		}
 		
 		/**
 		 * Invokes the ICouchDatabaseService to create a database based on current CouchDatabase target.
 		 */
-		public function handleCreateIfNotExist():void
+		public function doCreateIfNotExist():void
 		{
 			// Create internal responder for creation operation.
-			var createResponder:ICouchServiceResponder = new BasicCouchResponder( handleCreateResult, handleCreateFault );
+			var createResponder:ICouchServiceResponder = new BasicCouchResponder( doCreateResult, doCreateFault );
 			// Create responder for creation operation with basic responder.
 			var serviceResponder:ICouchServiceResponder = new CreateDatabaseResponder( _database, createResponder );
 			// Invoke service to create database.
@@ -146,7 +151,7 @@ package com.custardbelly.as3couchdb.mediator
 		 * Invokes the ICouchDatabaseService to read in database properties to target CouchDatabase target. 
 		 * @param action String The action associated with reading in values. Default CouchAction.READ.
 		 */
-		public function handleRead( action:String = CouchActionType.READ ):void
+		public function doRead( action:String = CouchActionType.READ ):void
 		{
 			var serviceResponder:ICouchServiceResponder = new ReadDatabaseResponder( _database, action, _responder );
 			_service.readDatabase( _database.db_name, serviceResponder );
@@ -155,7 +160,7 @@ package com.custardbelly.as3couchdb.mediator
 		/**
 		 * Invokes the ICouchDatabaseService to delete the database from the CouchDB instance.
 		 */
-		public function handleDelete():void
+		public function doDelete():void
 		{
 			var serviceResponder:ICouchServiceResponder = new DeleteDatabaseResponder( _database, _responder );
 			_service.deleteDatabase( _database.db_name, serviceResponder );
@@ -164,7 +169,7 @@ package com.custardbelly.as3couchdb.mediator
 		/**
 		 * Invokes the ICouchDatabaseService to request information related to target CouchDatabase.
 		 */
-		public function handleInfo():void
+		public function doInfo():void
 		{
 			_service.getDatabaseInfo( _database.db_name, _responder );
 		}
@@ -172,7 +177,7 @@ package com.custardbelly.as3couchdb.mediator
 		/**
 		 * Invokes the ICouchDatabaseService to request changes related to the target CouchDatabase.
 		 */
-		public function handleGetChanges():void
+		public function doGetChanges():void
 		{
 			_service.getDatabaseChanges( _database.db_name, _responder );
 		}
@@ -181,7 +186,7 @@ package com.custardbelly.as3couchdb.mediator
 		 * Invokes the ICouchDatabaseService to compact the target CouchDatabase and perform optional cleanup. 
 		 * @param cleanup Boolean
 		 */
-		public function handleCompact( cleanup:Boolean ):void
+		public function doCompact( cleanup:Boolean ):void
 		{
 			_service.compactDatabase( _database.db_name, cleanup, _responder );
 		}
@@ -190,7 +195,7 @@ package com.custardbelly.as3couchdb.mediator
 		 * Invokes the ICouchDatabaseService to retrieve all documents from target CouchDatabase and resolve each return as a type of CouchDocument class. 
 		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
 		 */
-		public function handleGetAllDocuments( documentClass:String ):void
+		public function doGetAllDocuments( documentClass:String ):void
 		{
 			var serviceResponder:ReadAllDocumentsResponder = new ReadAllDocumentsResponder( documentClass, _responder );
 			_service.getAllDocuments( _database.db_name, true, serviceResponder );
@@ -203,7 +208,7 @@ package com.custardbelly.as3couchdb.mediator
 		 * @param viewName String
 		 * @param keyValue String
 		 */
-		public function handleGetDocumentsFromView( documentClass:String, designDocumentName:String, viewName:String, keyValue:String ):void
+		public function doGetDocumentsFromView( documentClass:String, designDocumentName:String, viewName:String, keyValue:String ):void
 		{
 			var serviceResponder:ReadDocumentsFromViewResponder = new ReadDocumentsFromViewResponder( documentClass, _responder );
 			_service.getDocumentsFromView( _database.db_name, designDocumentName, viewName, keyValue, serviceResponder );

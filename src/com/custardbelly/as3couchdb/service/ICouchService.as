@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchService.as</p>
- * <p>Version: 0.2</p>
+ * <p>Version: 0.3</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,9 @@
  */
 package com.custardbelly.as3couchdb.service
 {
+	import com.custardbelly.as3couchdb.core.CouchUser;
+	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
+
 	/**
 	 * ICouchService is a base service for handling communication with a CouchDB instance.  
 	 * @author toddanderson
@@ -34,13 +37,20 @@ package com.custardbelly.as3couchdb.service
 	public interface ICouchService
 	{
 		/**
-		 * Returns the url of the CouchDB instance. 
-		 * @return String
+		 * Creates a session for the service to use for authentication of requests. 
+		 * @param user CouchUser
 		 */
-		function get baseUrl():String;
+		function createSession( user:CouchUser, responder:ICouchServiceResponder = null ):void;
+		
 		/**
 		 * Performs any cleanup prior to garbage collection.
 		 */
 		function dispose():void;
+		
+		/**
+		 * Returns the url of the CouchDB instance. 
+		 * @return String
+		 */
+		function get baseUrl():String;
 	}
 }

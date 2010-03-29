@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: IServiceMediator.as</p>
- * <p>Version: 0.2</p>
+ * <p>Version: 0.3</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,10 +38,10 @@ package com.custardbelly.as3couchdb.mediator
 	{
 		/**
 		 * Initializes mediator to establish service on which to communicate actions related to target model. 
-		 * @param taret CouchModel
+		 * @param target CouchModel
 		 * @param baseUrl String
 		 * @param databaseName String
 		 */
-		function initialize( taret:CouchModel, baseUrl:String, databaseName:String, request:ICouchRequest = null ):void;
+		function initialize( target:CouchModel, baseUrl:String, databaseName:String, request:ICouchRequest = null ):void;
 	}
 }

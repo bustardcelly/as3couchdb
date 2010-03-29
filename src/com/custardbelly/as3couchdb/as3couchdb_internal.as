@@ -1,6 +1,6 @@
 /**
  * <p>Original Author: toddanderson</p>
- * <p>Class File: CouchRequestMethod.as</p>
+ * <p>Class File: as2couchdb_internal.as</p>
  * <p>Version: 0.3</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,18 +24,11 @@
  * <p>Licensed under The MIT License</p>
  * <p>Redistributions of files must retain the above copyright notice.</p>
  */
-package com.custardbelly.as3couchdb.enum
+package com.custardbelly.as3couchdb
 {
 	/**
-	 * CouchRequestMethod is a string enumeration of the HTTP request types for a service operation. 
-	 * @author toddanderson
-	 */
-	public class CouchRequestMethod
-	{
-		public static const PUT:String = "PUT";
-		public static const GET:String = "GET";
-		public static const POST:String = "POST";
-		public static const DELETE:String = "DELETE";
-		public static const COPY:String = "COPY";
-	}
+	*  This namespace is used internally.
+	*  @private
+	*/
+	public namespace as3couchdb_internal = "as3couchdb.internal";
 }

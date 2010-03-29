@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchService.as</p>
- * <p>Version: 0.2</p>
+ * <p>Version: 0.3</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,15 +26,22 @@
  */
 package com.custardbelly.as3couchdb.service
 {
+	import com.custardbelly.as3couchdb.as3couchdb_internal;
+	import com.custardbelly.as3couchdb.command.PendingRequestCommand;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
+	import com.custardbelly.as3couchdb.core.CouchSession;
+	import com.custardbelly.as3couchdb.core.CouchUser;
+	import com.custardbelly.as3couchdb.enum.CouchRequestMethod;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 	
+	import flash.errors.IllegalOperationError;
 	import flash.events.Event;
 	import flash.events.HTTPStatusEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestHeader;
 
 	/**
 	 * CouchService is a base service class for communicating with a CouchDB instance. 
@@ -44,6 +51,11 @@ package com.custardbelly.as3couchdb.service
 	{
 		protected var _baseUrl:String;
 		protected var _request:ICouchRequest;
+		
+		protected var _user:CouchUser;
+		
+		public static var session:CouchSession;
+		private static var sessionCookieRequired:Boolean;
 		
 		/**
 		 * Constructor. 
@@ -58,6 +70,19 @@ package com.custardbelly.as3couchdb.service
 		}
 		
 		/**
+		 * Creation of basic service to instantiate any other service requests as requiring session.
+		 * @param baseUrl String The url of the CouchDB instance.
+		 * @param request ICouchRequest The ICouchRequest implmentation to request a session cookie.
+		 * @return ICouchService
+		 */
+		public static function getSessionService( baseUrl:String, request:ICouchRequest ):ICouchService
+		{
+			var service:ICouchService = new CouchService( baseUrl, request );
+			CouchService.sessionCookieRequired = true;
+			return service;
+		}
+		
+		/**
 		 * @private
 		 * 
 		 * Performs request. 
@@ -66,8 +91,39 @@ package com.custardbelly.as3couchdb.service
 		 */
 		protected function makeRequest( request:URLRequest, requestType:String, responder:ICouchServiceResponder = null ):void
 		{
-			// TODO: Push to queue.
+			if( CouchService.sessionCookieRequired )
+			{
+				if( CouchService.session == null )
+				{
+					throw new IllegalOperationError( "Service request require a valie session cookie in order to be perfromed." );
+				}
+				else if( CouchService.session.hasExpired() )
+				{
+					// Let session renew with pending command mark.
+					use namespace as3couchdb_internal;
+					CouchService.session.renew( new PendingRequestCommand( _request, request, requestType, responder ) );
+					return;
+				}
+				else
+				{
+					request.requestHeaders = CouchService.session.headers;
+				}
+			}
 			_request.execute( request, requestType, responder );
+		}
+		
+		/**
+		 * Creates a session for the service to use for authentication of requests. 
+		 * @param user CouchUser
+		 */
+		public function createSession( user:CouchUser, responder:ICouchServiceResponder = null ):void
+		{
+			_user = user;
+			var request:URLRequest = new URLRequest();
+			request.url = _baseUrl + "/_session";
+			request.contentType = "application/x-www-form-urlencoded";
+			request.data = "username=" + _user.name + "&password=" + _user.password;
+			_request.execute( request, CouchRequestMethod.POST, responder );
 		}
 		
 		/**

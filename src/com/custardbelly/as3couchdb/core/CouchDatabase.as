@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabase.as</p>
- * <p>Version: 0.2</p>
+ * <p>Version: 0.3</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -97,7 +97,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function createIfNotExist():void
 		{
-			_actionMediator.handleCreateIfNotExist();
+			_actionMediator.doCreateIfNotExist();
 		}
 		
 		/**
@@ -105,7 +105,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function read():void
 		{
-			_actionMediator.handleRead();
+			_actionMediator.doRead();
 		}
 		
 		/**
@@ -113,7 +113,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function remove():void
 		{
-			_actionMediator.handleDelete();
+			_actionMediator.doDelete();
 		}
 		
 		/**
@@ -121,7 +121,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function info():void
 		{
-			_actionMediator.handleInfo();
+			_actionMediator.doInfo();
 		}
 		
 		/**
@@ -129,7 +129,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function getChanges():void
 		{
-			_actionMediator.handleGetChanges();	
+			_actionMediator.doGetChanges();	
 		}
 		
 		/**
@@ -138,7 +138,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function compact( cleanup:Boolean = false ):void
 		{
-			_actionMediator.handleCompact( cleanup );
+			_actionMediator.doCompact( cleanup );
 		}
 		
 		/**
@@ -147,7 +147,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function getAllDocuments( documentClass:String ):void
 		{
-			_actionMediator.handleGetAllDocuments( documentClass );
+			_actionMediator.doGetAllDocuments( documentClass );
 		}
 		
 		/**
@@ -160,7 +160,7 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function getDocumentsFromView( documentClass:String, designDocumentName:String, viewName:String, keyValue:String = null ):void
 		{
-			_actionMediator.handleGetDocumentsFromView( documentClass, designDocumentName, viewName, keyValue );
+			_actionMediator.doGetDocumentsFromView( documentClass, designDocumentName, viewName, keyValue );
 		}
 	}
 }

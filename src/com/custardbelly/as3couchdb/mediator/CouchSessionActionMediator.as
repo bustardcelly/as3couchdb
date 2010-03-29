@@ -1,6 +1,6 @@
 /**
  * <p>Original Author: toddanderson</p>
- * <p>Class File: CouchDocumentActionMediator.as</p>
+ * <p>Class File: CouchSessionActionMediator.as</p>
  * <p>Version: 0.3</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,36 +26,31 @@
  */
 package com.custardbelly.as3couchdb.mediator
 {
-	import com.custardbelly.as3couchdb.core.CouchDocument;
+	import com.custardbelly.as3couchdb.command.IRequestCommand;
 	import com.custardbelly.as3couchdb.core.CouchModel;
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
+	import com.custardbelly.as3couchdb.core.CouchSession;
+	import com.custardbelly.as3couchdb.core.CouchUser;
 	import com.custardbelly.as3couchdb.enum.CouchActionType;
 	import com.custardbelly.as3couchdb.event.CouchEvent;
 	import com.custardbelly.as3couchdb.responder.BasicCouchResponder;
-	import com.custardbelly.as3couchdb.responder.CreateDocumentResponder;
-	import com.custardbelly.as3couchdb.responder.DeleteDocumentResponder;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
-	import com.custardbelly.as3couchdb.responder.ReadDocumentResponder;
-	import com.custardbelly.as3couchdb.responder.UpdateDocumentResponder;
-	import com.custardbelly.as3couchdb.service.CouchDocumentService;
-	import com.custardbelly.as3couchdb.service.ICouchDocumentService;
+	import com.custardbelly.as3couchdb.service.CouchService;
 	import com.custardbelly.as3couchdb.service.ICouchRequest;
-
-	/**
-	 * CouchDocumentActionMediator is an ICouchDocumentActionMediator implementation that do service operations in relation to a target CouchDocument instance.
-	 * @author toddanderson
-	 */
-	public class CouchDocumentActionMediator implements ICouchDocumentActionMediator
+	import com.custardbelly.as3couchdb.service.ICouchService;
+	
+	public class CouchSessionActionMediator implements ICouchSessionActionMediator
 	{
-		protected var _document:CouchDocument;
-		protected var _service:ICouchDocumentService;
-		protected var _serviceResponder:BasicCouchResponder;
+		protected var _session:CouchSession;
+		protected var _service:ICouchService;
+		protected var _serviceResponder:ICouchServiceResponder;
+		protected var _pendingCommandRequest:IRequestCommand;
 		
 		/**
 		 * Constructor.
 		 */
-		public function CouchDocumentActionMediator()
+		public function CouchSessionActionMediator()
 		{
 			// empty.
 		}
@@ -67,12 +62,26 @@ package com.custardbelly.as3couchdb.mediator
 		 * @param databaseName String
 		 * @param request ICouchRequest The ICouchRequest implmementation to forward requests through.
 		 */
-		public function initialize( target:CouchModel, baseUrl:String, databaseName:String, request:ICouchRequest = null ):void
+		public function initialize( target:CouchModel, baseUrl:String, databaseName:String, request:ICouchRequest=null ):void
 		{
-			_document = target as CouchDocument;
-			_service = CouchDocumentService.getDocumentService( baseUrl, databaseName, request );
+			_session = target as CouchSession;
+			_service = CouchService.getSessionService( baseUrl, request );
 			// Create basic responder to handle result and fault from service.
 			_serviceResponder = new BasicCouchResponder( handleServiceResult, handleServiceFault );	
+		}
+		
+		/**
+		 * @private
+		 * 
+		 * Updates the stored session for requests on CouchDB instance. 
+		 * @param cookie String
+		 */
+		protected function updateSession( cookie:String ):void
+		{
+			// Set cookie upon session.
+			_session.cookie = cookie;
+			// Supplie current session to service.
+			CouchService.session = _session;
 		}
 		
 		/**
@@ -82,9 +91,12 @@ package com.custardbelly.as3couchdb.mediator
 		 * @param result CouchServiceResult
 		 */
 		protected function handleServiceResult( result:CouchServiceResult ):void
-		{
+		{	
+			var cookie:String = result.data.toString();
+			// Update session.
+			updateSession( cookie );
 			// Dispatch event through target document.
-			_document.dispatchEvent( new CouchEvent( result.action, result ) );
+			_session.dispatchEvent( new CouchEvent( CouchActionType.SESSION_CREATE, result ) );
 		}
 		
 		/**
@@ -96,40 +108,45 @@ package com.custardbelly.as3couchdb.mediator
 		protected function handleServiceFault( fault:CouchServiceFault ):void
 		{
 			// Dispatch event through target document.
-			_document.dispatchEvent( new CouchEvent( CouchEvent.FAULT, fault ) );
+			_session.dispatchEvent( new CouchEvent( CouchEvent.FAULT, fault ) );
 		}
 		
 		/**
-		 * Invokes the ICouchDocumentService to read in and apply attributes to the target document. 
-		 * @param id String
+		 * @private
+		 * 
+		 * Responder method for success in renewal of cookie. 
+		 * @param result CouchServiceResult
 		 */
-		public function doRead( id:String ):void
+		protected function handleRenewResult( result:CouchServiceResult ):void
 		{
-			_document.id = id;
-			var responder:ICouchServiceResponder = new ReadDocumentResponder( _document, _serviceResponder );
-			_service.readDocument( id, responder );
+			var cookie:String = result.data.toString();
+			// Update session.
+			updateSession( cookie );
+			// Execute pending command request.
+			if( _pendingCommandRequest )
+				_pendingCommandRequest.execute();
 		}
 		
 		/**
-		 * Invokes the ICouchDocumentService to save the document to the database in CouchDB. Used for creation and update to document.
+		 * Invokes service to create a new session based on user credentials. 
+		 * @param user CouchUser
 		 */
-		public function doSave():void
+		public function doCreate( user:CouchUser ):void
 		{
-			// Create the appropriate service responder based on document id.
-			// If the document id is null, it is a new document instance and should instruct the service to create the document first.
-			var responder:ICouchServiceResponder = ( _document.id )
-													? new UpdateDocumentResponder( _document, CouchActionType.UPDATE, _serviceResponder )
-													: new CreateDocumentResponder( _document, _serviceResponder );
-			_service.saveDocument( _document, responder );
+			_service.createSession( user, _serviceResponder );
 		}
 		
 		/**
-		 * Invokes the ICouchDocumentService to delete the document from the database in CouchDB.
+		 * Invokes service to renew session and complete pending request. 
+		 * @param user CouchUser
+		 * @param commandRequest IRequestCommand
 		 */
-		public function doDelete():void
+		public function doRenew( user:CouchUser, commandRequest:IRequestCommand ):void
 		{
-			var responder:ICouchServiceResponder = new DeleteDocumentResponder( _document, _serviceResponder )
-			_service.deleteDocument( _document.id, _document.revision, responder );
+			// Store pending request.
+			_pendingCommandRequest = commandRequest;
+			// Request new session cookie.
+			_service.createSession( user, new BasicCouchResponder( handleRenewResult, handleServiceFault ) );
 		}
 	}
 }

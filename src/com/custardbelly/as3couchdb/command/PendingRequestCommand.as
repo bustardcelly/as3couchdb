@@ -1,6 +1,6 @@
 /**
  * <p>Original Author: toddanderson</p>
- * <p>Class File: CreateDocumentResponder.as</p>
+ * <p>Class File: PendingRequestCommand.as</p>
  * <p>Version: 0.3</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,46 +24,41 @@
  * <p>Licensed under The MIT License</p>
  * <p>Redistributions of files must retain the above copyright notice.</p>
  */
-package com.custardbelly.as3couchdb.responder
+package com.custardbelly.as3couchdb.command
 {
-	import com.custardbelly.as3couchdb.core.CouchDocument;
-	import com.custardbelly.as3couchdb.core.CouchServiceFault;
-	import com.custardbelly.as3couchdb.core.CouchServiceResult;
-	import com.custardbelly.as3couchdb.enum.CouchActionType;
+	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
+	import com.custardbelly.as3couchdb.service.ICouchRequest;
 	
-	/**
-	 * CreateDocumentResponder is an ICouchServiceResponder implementation that handle the creation response of a new document. 
-	 * @author toddanderson
-	 */
-	public class CreateDocumentResponder extends UpdateDocumentResponder
+	import flash.net.URLRequest;
+
+	public class PendingRequestCommand implements IRequestCommand
 	{
+		protected var _couchRequest:ICouchRequest;
+		protected var _urlRequest:URLRequest;
+		protected var _requestType:String;
+		protected var _responder:ICouchServiceResponder;
+		
 		/**
 		 * Constructor. 
-		 * @param document CouchDocument
+		 * @param couchRequest ICouchRequest
+		 * @param urlRequest URLRequest
+		 * @param type String
 		 * @param responder ICouchServiceResponder
 		 */
-		public function CreateDocumentResponder( document:CouchDocument, responder:ICouchServiceResponder )
+		public function PendingRequestCommand( couchRequest:ICouchRequest, urlRequest:URLRequest, type:String, responder:ICouchServiceResponder = null )
 		{
-			// Notify super of a save action.
-			super( document, CouchActionType.CREATE, responder );
+			_couchRequest = couchRequest;
+			_urlRequest = urlRequest;
+			_requestType = type;
+			_responder = responder;
 		}
 		
 		/**
-		 * @inherit
+		 * Invokes wrapped ICouchRequest with passed arguments.
 		 */
-		override public function handleResult( value:CouchServiceResult ):void
+		public function execute():void
 		{
-			var result:Object = value.data;
-			if( _reader.isResultAnError( result ) )
-			{
-				handleFault( new CouchServiceFault( result["error"], result["reason"] ) );
-			}
-			else
-			{
-				// update the target document based on returned value as a creation result.
-				_reader.updateDocumentFromCreation( _document, result );	
-				if( _responder ) _responder.handleResult( new CouchServiceResult( _action, _document ) );
-			}
+			_couchRequest.execute( _urlRequest, _requestType, _responder );
 		}
 	}
 }

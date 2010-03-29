@@ -1,6 +1,6 @@
 /**
  * <p>Original Author: toddanderson</p>
- * <p>Class File: CreateDocumentResponder.as</p>
+ * <p>Class File: CouchUser.as</p>
  * <p>Version: 0.3</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,46 +24,24 @@
  * <p>Licensed under The MIT License</p>
  * <p>Redistributions of files must retain the above copyright notice.</p>
  */
-package com.custardbelly.as3couchdb.responder
+package com.custardbelly.as3couchdb.core
 {
-	import com.custardbelly.as3couchdb.core.CouchDocument;
-	import com.custardbelly.as3couchdb.core.CouchServiceFault;
-	import com.custardbelly.as3couchdb.core.CouchServiceResult;
-	import com.custardbelly.as3couchdb.enum.CouchActionType;
-	
 	/**
-	 * CreateDocumentResponder is an ICouchServiceResponder implementation that handle the creation response of a new document. 
+	 * CouchUser is a generic user class mainly for use with session authentication. 
 	 * @author toddanderson
 	 */
-	public class CreateDocumentResponder extends UpdateDocumentResponder
+	public class CouchUser
 	{
-		/**
-		 * Constructor. 
-		 * @param document CouchDocument
-		 * @param responder ICouchServiceResponder
-		 */
-		public function CreateDocumentResponder( document:CouchDocument, responder:ICouchServiceResponder )
-		{
-			// Notify super of a save action.
-			super( document, CouchActionType.CREATE, responder );
-		}
+		public var name:String;
+		public var password:String;
 		
 		/**
-		 * @inherit
+		 * Constuctor.
 		 */
-		override public function handleResult( value:CouchServiceResult ):void
+		public function CouchUser( name:String, password:String )
 		{
-			var result:Object = value.data;
-			if( _reader.isResultAnError( result ) )
-			{
-				handleFault( new CouchServiceFault( result["error"], result["reason"] ) );
-			}
-			else
-			{
-				// update the target document based on returned value as a creation result.
-				_reader.updateDocumentFromCreation( _document, result );	
-				if( _responder ) _responder.handleResult( new CouchServiceResult( _action, _document ) );
-			}
+			this.name = name;
+			this.password = password;
 		}
 	}
 }

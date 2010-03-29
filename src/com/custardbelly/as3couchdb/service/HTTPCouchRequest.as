@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: HTTPCouchRequest.as</p>
- * <p>Version: 0.2</p>
+ * <p>Version: 0.3</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,15 +39,21 @@ package com.custardbelly.as3couchdb.service
 	import flash.events.Event;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestHeader;
 	import flash.text.engine.ContentElement;
 	import flash.utils.ByteArray;
 	
 	import org.httpclient.HttpClient;
+	import org.httpclient.HttpRequest;
 	import org.httpclient.HttpResponse;
 	import org.httpclient.events.HttpDataEvent;
 	import org.httpclient.events.HttpListener;
 	import org.httpclient.events.HttpResponseEvent;
 	import org.httpclient.events.HttpStatusEvent;
+	import org.httpclient.http.Delete;
+	import org.httpclient.http.Get;
+	import org.httpclient.http.Post;
+	import org.httpclient.http.Put;
 	
 	/**
 	 * HTTPCouchRequest is an ICouchRequest implememntation that uses as3httpclient to communicate with a CouchDB instance.
@@ -72,6 +78,26 @@ package com.custardbelly.as3couchdb.service
 			listener.onComplete = handleComplete;
 			listener.onError = handleError;
 			_client.listener = listener;
+		}
+		
+		/**
+		 * @private
+		 * 
+		 * Adds headers to HttpRequest instance from an array of URLRequestHeader items. 
+		 * @param request HttpRequest
+		 * @param headers Array List of URLRequestHeader instances.
+		 */
+		protected function addHeadersToRequest( request:HttpRequest, headers:Array /*URLRequestHeader[]*/ ):void
+		{
+			// If not headers, move on.
+			if( headers == null ) return;
+			// Else loop through a add shifted headers to HttpRequest.
+			var header:URLRequestHeader;
+			while( headers.length > 0 )
+			{
+				header = headers.shift() as URLRequestHeader;
+				request.addHeader( header.name, header.value );
+			}	
 		}
 		
 		/* HttpListener implmementations */
@@ -145,32 +171,48 @@ package com.custardbelly.as3couchdb.service
 		/**
 		 * @inherit 
 		 */
-		override public function execute( request:URLRequest, requestType:String, responder:ICouchServiceResponder ):void
+		override public function execute( urlRequest:URLRequest, requestType:String, responder:ICouchServiceResponder ):void
 		{
-			super.execute( request, requestType, responder );
+			super.execute( urlRequest, requestType, responder );
 			
 			_responseBytes = new ByteArray();
 			
-			var uri:URI = new URI( request.url );
+			var request:HttpRequest;
+			var uri:URI = new URI( urlRequest.url );
 			var body:ByteArray = new ByteArray();
-			if( request.data != null )
-				body.writeUTFBytes(request.data.toString());
+			if( urlRequest.data != null )
+				body.writeUTFBytes(urlRequest.data.toString());
 			body.position = 0;
 			
 			switch( requestType )
 			{
-				case CouchRequestMethod.PUT:	
-					_client.put( uri, body, CouchContentType.JSON );
+				case CouchRequestMethod.PUT:
+					request = new Put();
+					request.contentType = urlRequest.contentType;
+					request.body = body;
+//					_client.put( uri, body, CouchContentType.JSON );
 					break;
 				case CouchRequestMethod.POST:
-					_client.post( uri, body, CouchContentType.JSON );
+					request = new Post();
+					request.contentType = urlRequest.contentType;
+					request.body = body;
+//					_client.post( uri, body, CouchContentType.JSON );
 					break;
 				case CouchRequestMethod.GET:
-					_client.get( uri );
+					request = new Get();
+//					_client.get( uri );
 					break;
 				case CouchRequestMethod.DELETE:
-					_client.del( uri );
+					request = new Delete();
+//					_client.del( uri );
 					break;
+			}
+			
+			// If a request has been established...
+			if( request )
+			{
+				addHeadersToRequest( request, urlRequest.requestHeaders );
+				_client.request( uri, request );
 			}
 		}
 		
