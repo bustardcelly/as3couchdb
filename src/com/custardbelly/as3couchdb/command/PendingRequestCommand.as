@@ -31,6 +31,10 @@ package com.custardbelly.as3couchdb.command
 	
 	import flash.net.URLRequest;
 
+	/**
+	 * PendingRequestCommand is generic wrapper for invoking a ICouchRequest with held arguments.  
+	 * @author toddanderson
+	 */
 	public class PendingRequestCommand implements IRequestCommand
 	{
 		protected var _couchRequest:ICouchRequest;
