@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: HTTPCouchRequest.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -146,7 +146,7 @@ package com.custardbelly.as3couchdb.service
 			}
 			else
 			{
-				respondToFault( CouchEvent.FAULT, evt.response.message );
+				respondToFault( CouchEvent.FAULT, int(response.code), evt.response.message );
 			}
 			
 			_responseBytes = new ByteArray();
@@ -165,7 +165,7 @@ package com.custardbelly.as3couchdb.service
 			if( evt is ErrorEvent )
 				message = ( evt as ErrorEvent ).message;
 			
-			respondToFault( CouchEvent.FAULT, message );
+			respondToFault( CouchEvent.FAULT, 0, message );
 		}
 		
 		/**
@@ -180,9 +180,21 @@ package com.custardbelly.as3couchdb.service
 			var request:HttpRequest;
 			var uri:URI = new URI( urlRequest.url );
 			var body:ByteArray = new ByteArray();
+			// If the requets data is not serialized into bytes, do so.
 			if( urlRequest.data != null )
-				body.writeUTFBytes(urlRequest.data.toString());
-			body.position = 0;
+			{
+				// Serialize as UTF string.
+				if( !( urlRequest.data is ByteArray ) )
+				{
+					body.writeUTFBytes(urlRequest.data.toString());
+				}
+				else
+				// If the there is data available it probably is already serialized in the correct format. 
+				{
+					body = urlRequest.data as ByteArray;
+				}
+				body.position = 0;
+			}
 			
 			switch( requestType )
 			{
@@ -190,21 +202,17 @@ package com.custardbelly.as3couchdb.service
 					request = new Put();
 					request.contentType = urlRequest.contentType;
 					request.body = body;
-//					_client.put( uri, body, CouchContentType.JSON );
 					break;
 				case CouchRequestMethod.POST:
 					request = new Post();
 					request.contentType = urlRequest.contentType;
 					request.body = body;
-//					_client.post( uri, body, CouchContentType.JSON );
 					break;
 				case CouchRequestMethod.GET:
 					request = new Get();
-//					_client.get( uri );
 					break;
 				case CouchRequestMethod.DELETE:
 					request = new Delete();
-//					_client.del( uri );
 					break;
 			}
 			

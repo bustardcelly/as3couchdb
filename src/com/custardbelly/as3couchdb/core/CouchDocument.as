@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocument.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,15 +33,19 @@ package com.custardbelly.as3couchdb.core
 	/**
 	 * Dispatched upon successful read in and application of attributes for a document instance in CouchDB. 
 	 */
-	[Event(name="read", type="com.custardbelly.as3couchdb.event.CouchEvent")]
+	[Event(name="read", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
 	/**
 	 * Dispatched upon successful creation and update of a document in CouchDB. 
 	 */
-	[Event(name="save", type="com.custardbelly.as3couchdb.event.CouchEvent")]
+	[Event(name="create", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
+	/**
+	 * Dispatched upon successful update and update of a document in CouchDB. 
+	 */
+	[Event(name="update", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
 	/**
 	 * Dispatched upon successful deletion of document in CouchDB. 
 	 */
-	[Event(name="delete", type="com.custardbelly.as3couchdb.event.CouchEvent")]
+	[Event(name="delete", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
 	
 	/**
 	 * <p>CouchDocument is a base model representing an instance of a document within a databse of CouchDB. To effectively use a CouchDocument and its methods,
@@ -63,7 +67,7 @@ package com.custardbelly.as3couchdb.core
 	{
 		protected var _id:String;
 		protected var _revision:String;
-		protected var _attachments:Object; 	// Generic map of key/value.
+		protected var _attachments:Vector.<CouchAttachment>;
 		
 		protected var _actionMediator:ICouchDocumentActionMediator;
 		
@@ -74,6 +78,7 @@ package com.custardbelly.as3couchdb.core
 		{
 			super();
 			_actionMediator = _mediator as ICouchDocumentActionMediator; 
+			_attachments = new Vector.<CouchAttachment>();
 		}
 		
 		/**
@@ -111,6 +116,14 @@ package com.custardbelly.as3couchdb.core
 		}
 		
 		/**
+		 * Invokes the action mediator to push attachments that are either modified or new to the COuchDB database related to this docuent instance.
+		 */
+		public function saveAttachments():void
+		{
+			_actionMediator.doSaveAttachments();
+		}
+		
+		/**
 		 * Returns the unique identifier for this document. 
 		 * @return String
 		 */
@@ -140,11 +153,11 @@ package com.custardbelly.as3couchdb.core
 		 * Returns a generic object describing attachments associated with this document. 
 		 * @return Object
 		 */
-		public function get attachments():Object
+		public function get attachments():Vector.<CouchAttachment>
 		{
 			return _attachments;
 		}
-		public function set attachments( value:Object ):void
+		public function set attachments( value:Vector.<CouchAttachment> ):void
 		{
 			_attachments = value;
 		}

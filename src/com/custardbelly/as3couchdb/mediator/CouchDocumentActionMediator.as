@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocumentActionMediator.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +26,14 @@
  */
 package com.custardbelly.as3couchdb.mediator
 {
+	import com.custardbelly.as3couchdb.core.CouchAttachment;
 	import com.custardbelly.as3couchdb.core.CouchDocument;
 	import com.custardbelly.as3couchdb.core.CouchModel;
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
 	import com.custardbelly.as3couchdb.enum.CouchActionType;
 	import com.custardbelly.as3couchdb.event.CouchEvent;
+	import com.custardbelly.as3couchdb.mediator.helper.AttachmentRequestQueue;
 	import com.custardbelly.as3couchdb.responder.BasicCouchResponder;
 	import com.custardbelly.as3couchdb.responder.CreateDocumentResponder;
 	import com.custardbelly.as3couchdb.responder.DeleteDocumentResponder;
@@ -51,6 +53,7 @@ package com.custardbelly.as3couchdb.mediator
 		protected var _document:CouchDocument;
 		protected var _service:ICouchDocumentService;
 		protected var _serviceResponder:BasicCouchResponder;
+		protected var _attachmentRequestQueue:AttachmentRequestQueue;
 		
 		/**
 		 * Constructor.
@@ -106,8 +109,8 @@ package com.custardbelly.as3couchdb.mediator
 		public function doRead( id:String ):void
 		{
 			_document.id = id;
-			var responder:ICouchServiceResponder = new ReadDocumentResponder( _document, _serviceResponder );
-			_service.readDocument( id, responder );
+			var responder:ICouchServiceResponder = new ReadDocumentResponder( _document, CouchActionType.READ, _serviceResponder );
+			_service.readDocument( id, responder ).execute();
 		}
 		
 		/**
@@ -120,7 +123,8 @@ package com.custardbelly.as3couchdb.mediator
 			var responder:ICouchServiceResponder = ( _document.id )
 													? new UpdateDocumentResponder( _document, CouchActionType.UPDATE, _serviceResponder )
 													: new CreateDocumentResponder( _document, _serviceResponder );
-			_service.saveDocument( _document, responder );
+			
+			_service.saveDocument( _document, responder ).execute();
 		}
 		
 		/**
@@ -129,7 +133,34 @@ package com.custardbelly.as3couchdb.mediator
 		public function doDelete():void
 		{
 			var responder:ICouchServiceResponder = new DeleteDocumentResponder( _document, _serviceResponder )
-			_service.deleteDocument( _document.id, _document.revision, responder );
+			_service.deleteDocument( _document.id, _document.revision, responder ).execute();
 		}
+		
+		/**
+		 * Invokes service to save changed, unsaved, or deleted attachments associate with the document.
+		 */
+		public function doSaveAttachments():void
+		{
+			// Create attachment request queue if not already existant.
+			if( _attachmentRequestQueue == null )
+			{
+				_attachmentRequestQueue = new AttachmentRequestQueue( _document, _service, _serviceResponder );
+			}
+			
+			// Run through attachments and mark those needed requests.
+			var attachments:Vector.<CouchAttachment> = new Vector.<CouchAttachment>();
+			var i:int;
+			var attachment:CouchAttachment;
+			for( i = 0; i < _document.attachments.length; i++ )
+			{
+				attachment = _document.attachments[i];
+				if( attachment.isDirty() || attachment.isDeleted )
+				{
+					_attachmentRequestQueue.addAttachment( attachment );
+				}
+			}
+			// Start request queue.
+			_attachmentRequestQueue.start();
+		}					   
 	}
 }

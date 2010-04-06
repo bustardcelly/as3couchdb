@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchDocumentActionMediator.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,5 +45,9 @@ package com.custardbelly.as3couchdb.mediator
 		 * Invokes service to delete the document.
 		 */
 		function doDelete():void;
+		/**
+		 * Invokes service to save changed or unsaved attachments associate with the document.
+		 */
+		function doSaveAttachments():void;
 	}
 }

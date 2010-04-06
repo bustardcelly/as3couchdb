@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabaseActionMediator.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
  */
 package com.custardbelly.as3couchdb.mediator
 {
+	import com.custardbelly.as3couchdb.command.IRequestCommand;
 	import com.custardbelly.as3couchdb.core.CouchDatabase;
 	import com.custardbelly.as3couchdb.core.CouchModel;
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
@@ -56,7 +57,7 @@ package com.custardbelly.as3couchdb.mediator
 		 * @private
 		 * A basic responder to do result and fault from service operations. 
 		 */
-		protected var _responder:BasicCouchResponder;
+		protected var _serviceResponder:BasicCouchResponder;
 		
 		/**
 		 * Constructor.
@@ -77,7 +78,7 @@ package com.custardbelly.as3couchdb.mediator
 		{
 			_database = target as CouchDatabase;
 			_service = CouchDatabaseService.getDatabaseService( baseUrl, request );
-			_responder = new BasicCouchResponder( handleServiceResult, handleServiceFault );
+			_serviceResponder = new BasicCouchResponder( handleServiceResult, handleServiceFault );
 		}
 		
 		/**
@@ -105,46 +106,17 @@ package com.custardbelly.as3couchdb.mediator
 		}
 		
 		/**
-		 * @private
-		 * 
-		 * Responder method for the sucess of database creation. Forwards on to reading in values for the database. 
-		 * @param result CouchServiceResult
-		 */
-		protected function doCreateResult( result:CouchServiceResult ):void
-		{
-			doRead( CouchActionType.CREATE );
-		}
-		
-		/**
-		 * @private
-		 * 
-		 * Responder method for fault in database creation. Could return in CouchFaulttype.DATABASE_ALREADY_EXISTS. IF so, read in the database. 
-		 * @param fault
-		 * 
-		 */
-		protected function doCreateFault( fault:CouchServiceFault ):void
-		{
-			if( fault.type == CouchFaultType.DATABASE_ALREADY_EXISTS )
-			{
-				doRead( CouchActionType.CREATE );
-			}
-			else
-			{
-				handleServiceFault( fault );
-			}
-		}
-		
-		/**
 		 * Invokes the ICouchDatabaseService to create a database based on current CouchDatabase target.
 		 */
 		public function doCreateIfNotExist():void
 		{
-			// Create internal responder for creation operation.
-			var createResponder:ICouchServiceResponder = new BasicCouchResponder( doCreateResult, doCreateFault );
 			// Create responder for creation operation with basic responder.
-			var serviceResponder:ICouchServiceResponder = new CreateDatabaseResponder( _database, createResponder );
+			var readResponder:ICouchServiceResponder = new ReadDatabaseResponder( _database, CouchActionType.CREATE, _serviceResponder )
 			// Invoke service to create database.
-			_service.createDatabase( _database.db_name, serviceResponder );
+			var createRequestCommand:IRequestCommand = _service.createDatabase( _database.db_name );
+			var readRequestCommand:IRequestCommand = _service.readDatabase( _database.db_name, readResponder );
+			createRequestCommand.nextCommand = readRequestCommand;
+			createRequestCommand.execute();
 		}
 		
 		/**
@@ -153,8 +125,8 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doRead( action:String = CouchActionType.READ ):void
 		{
-			var serviceResponder:ICouchServiceResponder = new ReadDatabaseResponder( _database, action, _responder );
-			_service.readDatabase( _database.db_name, serviceResponder );
+			var serviceResponder:ICouchServiceResponder = new ReadDatabaseResponder( _database, action, _serviceResponder );
+			_service.readDatabase( _database.db_name, serviceResponder ).execute();
 		}
 		
 		/**
@@ -162,8 +134,8 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doDelete():void
 		{
-			var serviceResponder:ICouchServiceResponder = new DeleteDatabaseResponder( _database, _responder );
-			_service.deleteDatabase( _database.db_name, serviceResponder );
+			var serviceResponder:ICouchServiceResponder = new DeleteDatabaseResponder( _database, _serviceResponder );
+			_service.deleteDatabase( _database.db_name, serviceResponder ).execute();
 		}
 		
 		/**
@@ -171,7 +143,7 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doInfo():void
 		{
-			_service.getDatabaseInfo( _database.db_name, _responder );
+			_service.getDatabaseInfo( _database.db_name, _serviceResponder ).execute();
 		}
 		
 		/**
@@ -179,7 +151,7 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doGetChanges():void
 		{
-			_service.getDatabaseChanges( _database.db_name, _responder );
+			_service.getDatabaseChanges( _database.db_name, _serviceResponder ).execute();
 		}
 		
 		/**
@@ -188,7 +160,7 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doCompact( cleanup:Boolean ):void
 		{
-			_service.compactDatabase( _database.db_name, cleanup, _responder );
+			_service.compactDatabase( _database.db_name, cleanup, _serviceResponder ).execute();
 		}
 		
 		/**
@@ -197,8 +169,8 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doGetAllDocuments( documentClass:String ):void
 		{
-			var serviceResponder:ReadAllDocumentsResponder = new ReadAllDocumentsResponder( documentClass, _responder );
-			_service.getAllDocuments( _database.db_name, true, serviceResponder );
+			var serviceResponder:ReadAllDocumentsResponder = new ReadAllDocumentsResponder( documentClass, _serviceResponder );
+			_service.getAllDocuments( _database.db_name, true, serviceResponder ).execute();
 		}
 		
 		/**
@@ -210,8 +182,8 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doGetDocumentsFromView( documentClass:String, designDocumentName:String, viewName:String, keyValue:String ):void
 		{
-			var serviceResponder:ReadDocumentsFromViewResponder = new ReadDocumentsFromViewResponder( documentClass, _responder );
-			_service.getDocumentsFromView( _database.db_name, designDocumentName, viewName, keyValue, serviceResponder );
+			var serviceResponder:ReadDocumentsFromViewResponder = new ReadDocumentsFromViewResponder( documentClass, _serviceResponder );
+			_service.getDocumentsFromView( _database.db_name, designDocumentName, viewName, keyValue, serviceResponder ).execute();
 		}
 	}
 }

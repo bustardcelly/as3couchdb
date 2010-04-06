@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchSessionActionMediator.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -122,9 +122,18 @@ package com.custardbelly.as3couchdb.mediator
 			var cookie:String = result.data.toString();
 			// Update session.
 			updateSession( cookie );
-			// Execute pending command request.
-			if( _pendingCommandRequest )
-				_pendingCommandRequest.execute();
+		}
+		
+		/**
+		 * Invokes service to renew session and complete pending request. 
+		 * @param user CouchUser
+		 * @param pendingCommand IRequestCommand The pending command to execute after successful renewal.
+		 * @return IRequestCommand
+		 */
+		public function createRenewRequest( user:CouchUser ):IRequestCommand
+		{
+			// Request new session cookie.
+			return _service.createSession( user, new BasicCouchResponder( handleRenewResult, handleServiceFault ) );
 		}
 		
 		/**
@@ -133,20 +142,7 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doCreate( user:CouchUser ):void
 		{
-			_service.createSession( user, _serviceResponder );
-		}
-		
-		/**
-		 * Invokes service to renew session and complete pending request. 
-		 * @param user CouchUser
-		 * @param commandRequest IRequestCommand
-		 */
-		public function doRenew( user:CouchUser, commandRequest:IRequestCommand ):void
-		{
-			// Store pending request.
-			_pendingCommandRequest = commandRequest;
-			// Request new session cookie.
-			_service.createSession( user, new BasicCouchResponder( handleRenewResult, handleServiceFault ) );
+			_service.createSession( user, _serviceResponder ).execute();
 		}
 	}
 }

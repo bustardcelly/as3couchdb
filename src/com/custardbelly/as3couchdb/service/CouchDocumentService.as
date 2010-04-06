@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocumentService.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 package com.custardbelly.as3couchdb.service
 {
 	import com.adobe.serialization.json.JSON;
+	import com.custardbelly.as3couchdb.command.IRequestCommand;
 	import com.custardbelly.as3couchdb.core.CouchDocument;
 	import com.custardbelly.as3couchdb.enum.CouchContentType;
 	import com.custardbelly.as3couchdb.enum.CouchRequestMethod;
@@ -39,6 +40,8 @@ package com.custardbelly.as3couchdb.service
 	import com.custardbelly.as3couchdb.util.UUID;
 	
 	import flash.net.URLRequest;
+	import flash.net.URLRequestHeader;
+	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
 
 	/**
@@ -84,37 +87,39 @@ package com.custardbelly.as3couchdb.service
 		 * Reads a document from the CouchDB instance. 
 		 * @param documentId String The unique id of the document.
 		 * @param responder ICouchServiceResponder Optional service responder.
-		 * 
+		 * @return IRequestCommand
 		 */
-		public function readDocument( documentId:String, responder:ICouchServiceResponder = null ):void
+		public function readDocument( documentId:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + _databaseName + "/" + documentId;
 			
-			makeRequest( request, CouchRequestMethod.GET, responder );
+			return makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
 		 * Creates a document in the database. 
 		 * @param documentId String The unique id of the document.
 		 * @param responder ICouchServiceResponder Optional service responder.
+		 * @return IRequestCommand
 		 */
-		public function createDocument( documentId:String, responder:ICouchServiceResponder = null ):void
+		public function createDocument( documentId:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + _databaseName + "/" + documentId;
 			
-			makeRequest( request, CouchRequestMethod.PUT, responder );
+			return makeRequest( request, CouchRequestMethod.PUT, responder );
 		}
 		
 		/**
 		 * Saves the document to the database of the CouchDB instance. 
 		 * @param document CouchDocument
 		 * @param responder ICouchServiceResponder Optional service responder.
+		 * @return IRequestCommand
 		 */
-		public function saveDocument( document:CouchDocument, responder:ICouchServiceResponder = null ):void
+		public function saveDocument( document:CouchDocument, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			// Determine if document exists based on the availablility of an id.
 			var id:String;
@@ -138,7 +143,7 @@ package com.custardbelly.as3couchdb.service
 			request.data = data;
 			request.url = _baseUrl + "/" + _databaseName + "/" + id;
 			
-			makeRequest( request, CouchRequestMethod.PUT, responder );
+			return makeRequest( request, CouchRequestMethod.PUT, responder );
 		}
 		
 		/**
@@ -146,15 +151,50 @@ package com.custardbelly.as3couchdb.service
 		 * @param documentId String The unique id of the document.
 		 * @param documentRevision The required revision of the document needed to perform delete operations.
 		 * @param responder ICouchServiceResponder Optional service responder.
+		 * @return IRequestCommand
 		 */
-		public function deleteDocument( documentId:String, documentRevision:String, responder:ICouchServiceResponder = null ):void
+		public function deleteDocument( documentId:String, documentRevision:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + _databaseName + "/" + documentId + "?rev=" + documentRevision;
 			
-			makeRequest( request, CouchRequestMethod.DELETE, responder );
+			return makeRequest( request, CouchRequestMethod.DELETE, responder );
 		}
+		
+		/**
+		 * Adds an attachment to an associated document. 
+		 * @param documentId String The unique id of the document.
+		 * @param documentRevision String The required revision of the document needed to perform attachments.
+		 * @param data * The bytes of data to update.
+		 * @param contentType String The content type to associate with the data.
+		 * @param responder ICouchServiceResponder Optional service responder.
+		 * @return IRequestCommand
+		 */
+		public function saveAttachment( documentId:String, documentRevision:String, fileName:String, data:*, contentType:String, responder:ICouchServiceResponder = null ):IRequestCommand
+		{
+			var request:URLRequest = new URLRequest();
+			request.contentType = contentType;
+			request.url = _baseUrl + "/" + _databaseName + "/" + documentId + "/" + fileName + "?rev=" + documentRevision;
+			request.data = data;
+			
+			return makeRequest( request, CouchRequestMethod.PUT, responder );
+		}
+		
+		/**
+		 * Removes an attachment rom an associated document. 
+		 * @param documentId String The unique id of the document.
+		 * @param documentRevision String The required revision of the document needed to perform attachments.
+		 * @param responder ICouchServiceResponder Optional service responder.
+		 * @return IRequestCommand
+		 */
+		public function deleteAttachment( documentId:String, documentRevision:String, fileName:String, responder:ICouchServiceResponder ):IRequestCommand
+		{
+			var request:URLRequest = new URLRequest();
+			request.url = _baseUrl + "/" + _databaseName + "/" + documentId + "/" + fileName + "?rev=" + documentRevision;
+			
+			return makeRequest( request, CouchRequestMethod.DELETE, responder );
+		}								 
 		
 		/**
 		 * Access an instance of a ICouchDocumentService based on the url and database held in the CouchDb instance. 

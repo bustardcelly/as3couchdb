@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ReadDatabaseResponder.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,18 +36,9 @@ package com.custardbelly.as3couchdb.responder
 	 * ReadDatabaseResponder is an ICouchServiceResponder implementation that handle result and fault from a service operation with regards to accessing and reading a database instance from CouchDB. 
 	 * @author toddanderson
 	 */
-	public class ReadDatabaseResponder implements ICouchServiceResponder
+	public class ReadDatabaseResponder extends AbstractDatabaseResponder
 	{
-		protected var _status:int;
-		protected var _database:CouchDatabase;
 		protected var _action:String;
-		protected var _responder:ICouchServiceResponder;
-		/**
-		 * @private
-		 * The reader that is knowledgable of the data type and attributes returned from the service. 
-		 */
-		protected var _reader:ICouchDatabaseReader;
-		
 		/**
 		 * Constructor. 
 		 * @param database CouchDatabase The target database to read in and apply attributes to.
@@ -56,51 +47,21 @@ package com.custardbelly.as3couchdb.responder
 		 */
 		public function ReadDatabaseResponder( database:CouchDatabase, action:String, responder:ICouchServiceResponder )
 		{
-			_database = database;
+			super( database, responder );
 			_action = action;
-			_responder = responder;
-			// Create a new reader object that understands the returned data.
-			_reader = new CouchDatabaseReader();
 		}
 		
 		/**
 		 * Result handler for response from service. Parses result to determine if the data relates to an error or success.
 		 * @param value CouchServiceResult
 		 */
-		public function handleResult( value:CouchServiceResult ):void
+		override public function handleResult( value:CouchServiceResult ):void
 		{
-			var result:Object = value.data;
-			if( _reader.isResultAnError( result ) )
+			if( !handleAsResultError( value ) )
 			{
-				handleFault( new CouchServiceFault( result["error"], result["reason"] ) );
-			}
-			else
-			{
-				_reader.updateFromResult( _database, result );
+				_reader.updateFromResult( _database, value.data );
 				if( _responder ) _responder.handleResult( new CouchServiceResult( _action, _database ) );
 			}
-		}
-		
-		/**
-		 * Fault handle for response from service. 
-		 * @param value CouchServiceFault
-		 */
-		public function handleFault( value:CouchServiceFault ):void
-		{
-			if( _responder ) _responder.handleFault( value );
-		}
-		
-		/**
-		 * Returns the current HTTP status of the service operation. 
-		 * @return int
-		 */
-		public function get status():int
-		{
-			return _status;
-		}
-		public function set status( value:int ):void
-		{
-			_status = value;
 		}
 	}
 }

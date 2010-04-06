@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchContentType.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,6 @@ package com.custardbelly.as3couchdb.enum
 	public class CouchContentType
 	{
 		public static const JSON:String = "application/json";
-		public static const JPEG:String = "images/jpg";
+		public static const JPEG:String = "image/jpeg";
 	}
 }

@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchServiceFault.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,7 @@ package com.custardbelly.as3couchdb.core
 	public class CouchServiceFault
 	{
 		protected var _type:String;
+		protected var _status:int;
 		protected var _message:String;
 		
 		/**
@@ -40,9 +41,10 @@ package com.custardbelly.as3couchdb.core
 		 * @param type String
 		 * @param message String
 		 */
-		public function CouchServiceFault( type:String, message:String )
+		public function CouchServiceFault( type:String, status:int, message:String )
 		{
 			_type = type;
+			_status = status;
 			_message = message;
 		}
 		/**
@@ -52,6 +54,14 @@ package com.custardbelly.as3couchdb.core
 		public function get type():String
 		{
 			return _type;
+		}
+		/**
+		 * Returns the status code related to the fault. 
+		 * @return int
+		 */
+		public function get status():int
+		{
+			return _status;
 		}
 		/**
 		 * Returns a description of the fault encountered. 

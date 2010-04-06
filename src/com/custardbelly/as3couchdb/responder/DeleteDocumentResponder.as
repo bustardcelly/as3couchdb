@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: DeleteDocumentResponder.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,15 +52,10 @@ package com.custardbelly.as3couchdb.responder
 		 */
 		override public function handleResult( value:CouchServiceResult ):void
 		{
-			var result:Object = value.data;
-			if( _reader.isResultAnError( result ) )
-			{
-				handleFault( new CouchServiceFault( result["error"], result["reason"] ) );
-			}
-			else
+			if( !handleResultAsError( value ) )
 			{
 				// Update the document base on the result.
-				_reader.updateDocumentFromResult( _document, result );
+				_reader.updateDocumentFromResult( _document, value.data );
 				// Mark the document as being deleted.
 				_document.isDeleted = true;
 				if( _responder ) _responder.handleResult( new CouchServiceResult( _action, _document ) );

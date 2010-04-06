@@ -1,6 +1,6 @@
 /**
  * <p>Original Author: toddanderson</p>
- * <p>Class File: ReadAllDocumentsResponder.as</p>
+ * <p>Class File: AbstractDatabaseResponder.as</p>
  * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,88 +26,72 @@
  */
 package com.custardbelly.as3couchdb.responder
 {
-	import com.custardbelly.as3couchdb.core.CouchDocument;
+	import com.custardbelly.as3couchdb.core.CouchDatabase;
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
-	import com.custardbelly.as3couchdb.enum.CouchActionType;
 	import com.custardbelly.as3couchdb.serialize.CouchDatabaseReader;
-	import com.custardbelly.as3couchdb.serialize.CouchDocumentReader;
+	import com.custardbelly.as3couchdb.serialize.ICouchDatabaseReader;
+	
+	import flash.errors.IllegalOperationError;
+	import flash.utils.getQualifiedClassName;
 	
 	/**
-	 * ReadAllDocumentsResponder is a service responder to read in the payload of all documents related to a database in the CouchDB instance. 
+	 * AbstractDatabaseResponder is an abstract responder to requests made on a database. 
 	 * @author toddanderson
 	 */
-	public class ReadAllDocumentsResponder implements ICouchServiceResponder
+	public class AbstractDatabaseResponder implements ICouchServiceResponder
 	{
-		protected var _documentClass:String;
+		protected var _database:CouchDatabase;
 		protected var _responder:ICouchServiceResponder;
 		protected var _status:int;
 		
-		protected var _databaseReader:CouchDatabaseReader;
-		protected var _documentReader:CouchDocumentReader;
+		/**
+		 * @private
+		 * The reader that is knowledgable of the data type and attributes returned from the service. 
+		 */
+		protected var _reader:ICouchDatabaseReader;
 		
 		/**
-		 * Constructor. 
-		 * @param documentClass String The fully-qualified class name of the document instance to resolve results to.
-		 * @param responder ICouchServiceResponder
+		 * Constructor.
 		 */
-		public function ReadAllDocumentsResponder( documentClass:String, responder:ICouchServiceResponder )
+		public function AbstractDatabaseResponder( database:CouchDatabase, responder:ICouchServiceResponder )
 		{
-			_documentClass = documentClass;
+			_database = database;
 			_responder = responder;
-			
-			_databaseReader = new CouchDatabaseReader();
-			_documentReader = new CouchDocumentReader();
+			// Create a new reader object that understands the returned data.
+			_reader = new CouchDatabaseReader();
 		}
 		
 		/**
 		 * @private
 		 * 
-		 * Determines if successful result returned is related to an error. 
-		 * @param value CouchServiceResult
+		 * Validates the result as being a successful error return or not. 
+		 * @param result CouchServicResult
 		 * @return Boolean
 		 */
-		protected function handleResultAsError( value:CouchServiceResult ):Boolean
+		protected function handleAsResultError( value:CouchServiceResult ):Boolean
 		{
 			var result:Object = value.data;
-			// If error, notify.
-			if( _databaseReader.isResultAnError( result ) )
+			if( _reader.isResultAnError( result ) )
 			{
 				handleFault( new CouchServiceFault( result["error"], 0, result["reason"] ) );
 				return true;
 			}
-			return false;
-		}
+			return false;	
+		}								
 		
 		/**
-		 * Responder method to handle the successful response form the request. 
+		 * Responder method to success in service request.
 		 * @param value CouchServiceResult
 		 */
 		public function handleResult( value:CouchServiceResult ):void
 		{
-			var result:Object = value.data;
-			// If error, notify.
-			if( !handleResultAsError( value ) )
-			{
-				var documents:Array = _databaseReader.getDocumentListFromResult( result );
-				
-				var i:int;
-				var document:CouchDocument;
-				var documentList:Array = [];
-				for( i = 0; i < documents.length; i++ )
-				{
-					// Documents are returned from /_all_docs as {doc:Object, id:String, key:String, value:Object}
-					// Supply the doc property to the reader.
-					document = _documentReader.createDocumentFromResult( _documentClass, documents[i].doc );
-					documentList.push( document );
-				}
-				
-				if( _responder ) _responder.handleResult( new CouchServiceResult( CouchActionType.READ_DOCUMENTS, documentList ) );
-			}
+			// abstract.
+			throw new IllegalOperationError( "[" + getQualifiedClassName( this ) + "::handleResult] - Method needs to be overridden in concrete class." );
 		}
 		
 		/**
-		 * Responder method to handle a fault in the service request. 
+		 * Responder method to fault in service request. 
 		 * @param value CouchServiceFault
 		 */
 		public function handleFault( value:CouchServiceFault ):void
@@ -116,9 +100,8 @@ package com.custardbelly.as3couchdb.responder
 		}
 		
 		/**
-		 * Accessor/Modifier of the current HTTP status code of the request. 
-		 * @return 
-		 * 
+		 * Returns the current HTTP status code of the request. 
+		 * @return int
 		 */
 		public function get status():int
 		{

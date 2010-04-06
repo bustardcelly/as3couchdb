@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
- * <p>Class File: PendingRequestCommand.as</p>
- * <p>Version: 0.3</p>
+ * <p>Class File: CreateDatabaseCommand.as</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,22 +26,20 @@
  */
 package com.custardbelly.as3couchdb.command
 {
+	import com.custardbelly.as3couchdb.core.CouchServiceFault;
+	import com.custardbelly.as3couchdb.enum.CouchFaultType;
+	import com.custardbelly.as3couchdb.enum.CouchRequestStatus;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 	import com.custardbelly.as3couchdb.service.ICouchRequest;
 	
 	import flash.net.URLRequest;
-
+	
 	/**
-	 * PendingRequestCommand is generic wrapper for invoking a ICouchRequest with held arguments.  
+	 * CreateDatabaseCommand is a CouchRequestCommand extensions to properly handle the response of database already existant in CouchDB instance. 
 	 * @author toddanderson
 	 */
-	public class PendingRequestCommand implements IRequestCommand
+	public class CreateDatabaseCommand extends CouchRequestCommand
 	{
-		protected var _couchRequest:ICouchRequest;
-		protected var _urlRequest:URLRequest;
-		protected var _requestType:String;
-		protected var _responder:ICouchServiceResponder;
-		
 		/**
 		 * Constructor. 
 		 * @param couchRequest ICouchRequest
@@ -49,20 +47,36 @@ package com.custardbelly.as3couchdb.command
 		 * @param type String
 		 * @param responder ICouchServiceResponder
 		 */
-		public function PendingRequestCommand( couchRequest:ICouchRequest, urlRequest:URLRequest, type:String, responder:ICouchServiceResponder = null )
+		public function CreateDatabaseCommand( couchRequest:ICouchRequest, urlRequest:URLRequest, type:String, responder:ICouchServiceResponder=null )
 		{
-			_couchRequest = couchRequest;
-			_urlRequest = urlRequest;
-			_requestType = type;
-			_responder = responder;
+			super( couchRequest, urlRequest, type, responder );
 		}
 		
 		/**
-		 * Invokes wrapped ICouchRequest with passed arguments.
+		 * @private
+		 * 
+		 * Override to check if fault do to already existant database. If so, move on to any subsewuent chain commands. Most likely it is a read command. 
+		 * @param fault CouchServiceFault
 		 */
-		public function execute():void
+		override protected function handleRequestFault( fault:CouchServiceFault ):void
 		{
-			_couchRequest.execute( _urlRequest, _requestType, _responder );
+			// If a 412 has happened, customize the fault response.
+			if( fault.status == CouchRequestStatus.HTTP_ALREADY_EXISTS )
+			{
+				if( _nextCommand != null )
+				{
+					executeNextCommand();
+				}
+				else
+				{
+					var fault:CouchServiceFault = new CouchServiceFault( CouchFaultType.DATABASE_ALREADY_EXISTS, fault.status, "Database already exists." );
+					super.handleRequestFault( fault );
+				}
+			}
+			else
+			{
+				super.handleRequestFault( fault );
+			}
 		}
 	}
 }

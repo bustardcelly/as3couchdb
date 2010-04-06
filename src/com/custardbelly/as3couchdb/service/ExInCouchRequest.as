@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ExInCouchRequest.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -125,7 +125,7 @@ package com.custardbelly.as3couchdb.service
 		protected function handleFault( result:Object ):void
 		{
 			// TODO: Decipher fault for correct message.
-			respondToFault( CouchEvent.FAULT, "error" );
+			respondToFault( CouchEvent.FAULT, 0, "error" );
 		}
 		
 		/**

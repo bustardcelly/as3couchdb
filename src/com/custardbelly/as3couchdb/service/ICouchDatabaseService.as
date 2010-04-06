@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchDatabaseService.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
  */
 package com.custardbelly.as3couchdb.service
 {
+	import com.custardbelly.as3couchdb.command.IRequestCommand;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 	
 	import flash.net.URLRequest;
@@ -40,20 +41,23 @@ package com.custardbelly.as3couchdb.service
 		 * Creates a new database in the CouchDB instance. 
 		 * @param databaseName String
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function createDatabase( databaseName:String, responder:ICouchServiceResponder = null ):void;
+		function createDatabase( databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand;
 		/**
 		 * Reads in a database from the CouchDB instance. 
 		 * @param databaseName String
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function readDatabase( databaseName:String, responder:ICouchServiceResponder = null ):void;
+		function readDatabase( databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Deletes a databse from the CouchDB instance. 
 		 * @param databaseName String
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function deleteDatabase( databaseName:String, responder:ICouchServiceResponder = null ):void;
+		function deleteDatabase( databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		
 		// Replication.
 		/**
@@ -61,63 +65,73 @@ package com.custardbelly.as3couchdb.service
 		 * @param databaseName String
 		 * @param target String
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function pushDatabase( databaseName:String, target:String, responder:ICouchServiceResponder = null ):void;
+		function pushDatabase( databaseName:String, target:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Pulls a database from a target CouchDB instance to the current target. 
 		 * @param target String
 		 * @param databaseName String
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function pullDatabase( target:String, databaseName:String, responder:ICouchServiceResponder = null ):void;
+		function pullDatabase( target:String, databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		
 		/**
 		 * Requests information related to a database. 
 		 * @param databaseName String
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function getDatabaseInfo( databaseName:String, responder:ICouchServiceResponder = null ):void;
+		function getDatabaseInfo( databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Requests change information related to a database. 
 		 * @param databaseName String
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function getDatabaseChanges( databaseName:String, responder:ICouchServiceResponder = null ):void;
+		function getDatabaseChanges( databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Compacts and performs optional cleanup of a database. 
 		 * @param databaseName String
 		 * @param cleanup Boolean
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function compactDatabase( databaseName:String, cleanup:Boolean = false, responder:ICouchServiceResponder = null ):void;
+		function compactDatabase( databaseName:String, cleanup:Boolean = false, responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Request all documents related to a database. 
 		 * @param databaseName String
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function getAllDocuments( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):void;
+		function getAllDocuments( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Request all documents in modification sequence related to a database. 
 		 * @param databaseName String
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function getAllDocumentsBySequence( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):void;
+		function getAllDocumentsBySequence( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Makes request on design document in CouchDB instance. 
 		 * @param id String
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function getDocumentsFromView( databaseName:String, documentName:String, viewName:String, byKeyValue:String = null, responder:ICouchServiceResponder = null ):void;
+		function getDocumentsFromView( databaseName:String, documentName:String, viewName:String, byKeyValue:String = null, responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Requests the list of databases in the target CouchDB instance. 
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function list( responder:ICouchServiceResponder = null ):void;
+		function list( responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Requests a list of unique ids from the target CouchDB instance. 
 		 * @param amount int
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function getUUIDs( amount:int = 1, responder:ICouchServiceResponder = null ):void;
+		function getUUIDs( amount:int = 1, responder:ICouchServiceResponder = null ):IRequestCommand
 	}
 }

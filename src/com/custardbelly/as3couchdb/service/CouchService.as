@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchService.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,8 @@
 package com.custardbelly.as3couchdb.service
 {
 	import com.custardbelly.as3couchdb.as3couchdb_internal;
-	import com.custardbelly.as3couchdb.command.PendingRequestCommand;
+	import com.custardbelly.as3couchdb.command.CouchRequestCommand;
+	import com.custardbelly.as3couchdb.command.IRequestCommand;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
 	import com.custardbelly.as3couchdb.core.CouchSession;
 	import com.custardbelly.as3couchdb.core.CouchUser;
@@ -85,45 +86,69 @@ package com.custardbelly.as3couchdb.service
 		/**
 		 * @private
 		 * 
-		 * Performs request. 
+		 * Verifies that a session is required, and if it is determines if the session needs to be renewed.
+		 * If a session is still active and required, appropriate headers are appended onto the request in order
+		 * to properly communicate with the service. 
 		 * @param request URLRequest
-		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		protected function makeRequest( request:URLRequest, requestType:String, responder:ICouchServiceResponder = null ):void
+		protected function verifySession( request:URLRequest ):IRequestCommand
 		{
 			if( CouchService.sessionCookieRequired )
 			{
 				if( CouchService.session == null )
 				{
-					throw new IllegalOperationError( "Service request require a valie session cookie in order to be perfromed." );
+					throw new IllegalOperationError( "Service request require a valid session cookie in order to be perfromed." );
 				}
 				else if( CouchService.session.hasExpired() )
 				{
 					// Let session renew with pending command mark.
 					use namespace as3couchdb_internal;
-					CouchService.session.renew( new PendingRequestCommand( _request, request, requestType, responder ) );
-					return;
+					return CouchService.session.renew();
 				}
 				else
 				{
-					request.requestHeaders = CouchService.session.headers;
+					// Else concat session headers for the request.
+					request.requestHeaders = request.requestHeaders.concat(CouchService.session.headers);
 				}
 			}
-			_request.execute( request, requestType, responder );
+			return null;
+		}
+		
+		/**
+		 * @private
+		 * 
+		 * Performs request. 
+		 * @param request URLRequest
+		 * @param responder ICouchServiceResponder
+		 */
+		protected function makeRequest( request:URLRequest, requestType:String, responder:ICouchServiceResponder = null ):IRequestCommand
+		{
+			// Verify session. If command returns, then we request for renewal is needed.
+			var pendingSessionRequest:IRequestCommand = verifySession( request );
+			var requestCommand:IRequestCommand = new CouchRequestCommand( _request, request, requestType, responder );
+			// If there is a need to verify session on service, chain pending command.
+			if( pendingSessionRequest != null )
+			{
+				pendingSessionRequest.nextCommand = requestCommand;
+				return pendingSessionRequest;
+			}
+			return requestCommand;
 		}
 		
 		/**
 		 * Creates a session for the service to use for authentication of requests. 
 		 * @param user CouchUser
 		 */
-		public function createSession( user:CouchUser, responder:ICouchServiceResponder = null ):void
+		public function createSession( user:CouchUser, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			_user = user;
 			var request:URLRequest = new URLRequest();
 			request.url = _baseUrl + "/_session";
 			request.contentType = "application/x-www-form-urlencoded";
 			request.data = "username=" + _user.name + "&password=" + _user.password;
-			_request.execute( request, CouchRequestMethod.POST, responder );
+			
+			return new CouchRequestCommand( _request, request, CouchRequestMethod.POST, responder );
 		}
 		
 		/**

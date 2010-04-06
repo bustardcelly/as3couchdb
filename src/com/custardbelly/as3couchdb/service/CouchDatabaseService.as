@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabaseService.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,8 @@
 // TODO: Support for upload of attachements.
 package com.custardbelly.as3couchdb.service
 {
+	import com.custardbelly.as3couchdb.command.CreateDatabaseCommand;
+	import com.custardbelly.as3couchdb.command.IRequestCommand;
 	import com.custardbelly.as3couchdb.enum.CouchContentType;
 	import com.custardbelly.as3couchdb.enum.CouchRequestMethod;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
@@ -74,46 +76,70 @@ package com.custardbelly.as3couchdb.service
 		}
 		
 		/**
+		 * @private
+		 * 
+		 * Creates a special request command implementation to handle creation of database if not exists. 
+		 * @param request URLRequest
+		 * @param requestType String
+		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
+		 */
+		protected function makeCreateRequest( request:URLRequest, requestType:String, responder:ICouchServiceResponder ):IRequestCommand
+		{
+			var sessionCommand:IRequestCommand = verifySession( request );
+			var createDatabaseCommand:IRequestCommand = new CreateDatabaseCommand( _request, request, requestType, responder );
+			if( sessionCommand != null )
+			{
+				sessionCommand.nextCommand = createDatabaseCommand;
+				return sessionCommand;
+			}
+			return createDatabaseCommand;
+		}
+		
+		/**
 		 * Creates a new database using the supplied database name. 
 		 * @param databaseName String The name of the database to create.
 		 * @param responder ICouchServiceResponder Optional service responder.
+		 * @return IRequestCommand
 		 */
-		public function createDatabase( databaseName:String, responder:ICouchServiceResponder = null ):void
+		public function createDatabase( databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + validateDatabaseName( databaseName );
 			
-			makeRequest( request, CouchRequestMethod.PUT, responder );
+			return makeCreateRequest( request, CouchRequestMethod.PUT, responder );
 		}
 		
 		/**
 		 * Reads in a database from the CouchDB instance. 
 		 * @param databaseName String The name of the database to read in.
 		 * @param responder ICouchServiceResponder Option service responder.
+		 * @return IRequestCommand
 		 */
-		public function readDatabase( databaseName:String, responder:ICouchServiceResponder = null ):void
+		public function readDatabase( databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName;
 			
-			makeRequest( request, CouchRequestMethod.GET, responder );
+			return makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
 		 * Deletes a database form the CouchDB instance. 
 		 * @param databaseName String The name of the database to delete.
 		 * @param responder ICouchServiceResponder Option service responder.
+		 * @return IRequestCommand
 		 */
-		public function deleteDatabase( databaseName:String, responder:ICouchServiceResponder = null ):void
+		public function deleteDatabase( databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName;
 			
 			// 200, 404
-			makeRequest( request, CouchRequestMethod.DELETE, responder );
+			return makeRequest( request, CouchRequestMethod.DELETE, responder );
 		}
 		
 		/**
@@ -121,8 +147,9 @@ package com.custardbelly.as3couchdb.service
 		 * @param databaseName String The database to push.
 		 * @param target String The target CouchDB url to push the database to.
 		 * @param responder ICouchServiceResponder Option service responder.
+		 * @return IRequestCommand
 		 */
-		public function pushDatabase( databaseName:String, target:String, responder:ICouchServiceResponder = null ):void
+		public function pushDatabase( databaseName:String, target:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var data:Object = {source: _baseUrl + "/" + databaseName, target: target + "/" + databaseName};
 			
@@ -131,7 +158,7 @@ package com.custardbelly.as3couchdb.service
 			request.data = _writer.serialize( data );
 			request.url = _baseUrl + "/_replicate";
 			
-			makeRequest( request, CouchRequestMethod.POST, responder );
+			return makeRequest( request, CouchRequestMethod.POST, responder );
 		}
 		
 		/**
@@ -139,8 +166,9 @@ package com.custardbelly.as3couchdb.service
 		 * @param target String The target database to pull from.
 		 * @param databaseName String The database name to pull.
 		 * @param responder ICouchServiceResponder Option service responder.
+		 * @return IRequestCommand
 		 */
-		public function pullDatabase( target:String, databaseName:String, responder:ICouchServiceResponder = null ):void
+		public function pullDatabase( target:String, databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var data:Object = {source: target + "/" + databaseName, target: _baseUrl + "/" + databaseName};
 			var request:URLRequest = new URLRequest();
@@ -148,35 +176,37 @@ package com.custardbelly.as3couchdb.service
 			request.data = _writer.serialize( data );
 			request.url = _baseUrl + "/_replicate";
 			
-			makeRequest( request, CouchRequestMethod.POST, responder );
+			return makeRequest( request, CouchRequestMethod.POST, responder );
 		}
 		
 		/**
 		 * Request information related to a database. 
 		 * @param databaseName String The target database.
 		 * @param responder ICouchServiceResponder Option service responder.
+		 * @return IRequestCommand
 		 */
-		public function getDatabaseInfo( databaseName:String, responder:ICouchServiceResponder = null ):void
+		public function getDatabaseInfo( databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName;
 			
-			makeRequest( request, CouchRequestMethod.GET, responder );
+			return makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
 		 * Request changes related to a database. 
 		 * @param databaseName String The target database.
 		 * @param responder ICouchServiceResponder Option service responder.
+		 * @return IRequestCommand
 		 */
-		public function getDatabaseChanges( databaseName:String, responder:ICouchServiceResponder = null ):void
+		public function getDatabaseChanges( databaseName:String, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName + "/_changes";
 			
-			makeRequest( request, CouchRequestMethod.GET, responder );
+			return makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
@@ -184,87 +214,93 @@ package com.custardbelly.as3couchdb.service
 		 * @param databaseName String The target database.
 		 * @param cleanup Boolean Optional cleanup.
 		 * @param responder ICouchServiceResponder Option service responder.
+		 * @return IRequestCommand
 		 */
-		public function compactDatabase( databaseName:String, cleanup:Boolean = false, responder:ICouchServiceResponder = null ):void
+		public function compactDatabase( databaseName:String, cleanup:Boolean = false, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName + "/_compact";
 			request.url += ( cleanup ) ? "/" + "_view_cleanup" : "";
 			
-			makeRequest( request, CouchRequestMethod.POST, responder );
+			return makeRequest( request, CouchRequestMethod.POST, responder );
 		}
 		
 		/**
 		 * Returns all documents associated with a database in a CouchDB instance. 
 		 * @param databaseName String The target database.
 		 * @param responder ICouchServiceResponder Option service responder.
+		 * @return IRequestCommand
 		 */
-		public function getAllDocuments( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):void
+		public function getAllDocuments( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName + "/_all_docs";
 			if( includeDocs ) request.url += "?include_docs=true";
 			
-			makeRequest( request, CouchRequestMethod.GET, responder );
+			return makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
 		 * Returns all the document associated with a database by sequence in a CouchDB instance. 
 		 * @param databaseName String The target database.
 		 * @param responder ICouchServiceResponder Option service responder.
+		 * @return IRequestCommand
 		 */
-		public function getAllDocumentsBySequence( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):void
+		public function getAllDocumentsBySequence( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName + "/_all_docs_by_seq";
 			if( includeDocs ) request.url += "?include_docs=true";
 			
-			makeRequest( request, CouchRequestMethod.GET, responder );
+			return makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
 		 * Requests a list of unique ids from the CouchDB instance. 
 		 * @param amount int The number of unique ids to request.
 		 * @param responder ICouchServiceResponder Option service responder.
+		 * @return IRequestCommand
 		 */
-		public function getUUIDs( amount:int = 1, responder:ICouchServiceResponder = null ):void
+		public function getUUIDs( amount:int = 1, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/_uuids?count=" + amount;
 			
-			makeRequest( request, CouchRequestMethod.GET, responder ); 
+			return makeRequest( request, CouchRequestMethod.GET, responder ); 
 		}
 		
 		/**
 		 * Lists the databases available on the CouchDB instance. 
 		 * @param responder ICouchServiceResponder Option service responder.
+		 * @return IRequestCommand
 		 */
-		public function list( responder:ICouchServiceResponder = null ):void
+		public function list( responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/_all_dbs";
 			
-			makeRequest( request, CouchRequestMethod.GET, responder );
+			return makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**
 		 * Makes request on design document in CouchDB instance. 
 		 * @param id String
 		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		public function getDocumentsFromView( databaseName:String, documentName:String, viewName:String, byKeyValue:String = null, responder:ICouchServiceResponder = null ):void
+		public function getDocumentsFromView( databaseName:String, documentName:String, viewName:String, byKeyValue:String = null, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;
 			request.url = _baseUrl + "/" + databaseName + "/_design/" + documentName + "/_view/" + viewName;
 			if( byKeyValue ) request.url += "?key=\"" + byKeyValue + "\"";
 			
-			makeRequest( request, CouchRequestMethod.GET, responder );
+			return makeRequest( request, CouchRequestMethod.GET, responder );
 		}
 		
 		/**

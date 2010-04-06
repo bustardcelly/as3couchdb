@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocumentReader.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,8 @@
 package com.custardbelly.as3couchdb.serialize
 {
 	import com.adobe.serialization.json.JSON;
+	import com.custardbelly.as3couchdb.as3couchdb_internal;
+	import com.custardbelly.as3couchdb.core.CouchAttachment;
 	import com.custardbelly.as3couchdb.core.CouchDocument;
 	
 	import flash.utils.Dictionary;
@@ -53,6 +55,30 @@ package com.custardbelly.as3couchdb.serialize
 			reservedProperties["_id"] = true;
 			reservedProperties["_rev"] = true;
 			reservedProperties["_attachments"] = true;
+		}
+		
+		/**
+		 * @private
+		 * 
+		 * Fills the attachment list of a document based on the result. 
+		 * @param document CouchDocument
+		 * @param result Object Generic object representing attachments from service. ("_attachments").
+		 * @return Vector.<CouchAttachment>
+		 */
+		protected function createAssociatedAttachments( document:CouchDocument, result:Object ):Vector.<CouchAttachment>
+		{
+			use namespace as3couchdb_internal;
+			var attachments:Vector.<CouchAttachment> = new Vector.<CouchAttachment>();
+			var file:String
+			var attachment:CouchAttachment;
+			for( file in result )
+			{
+				var obj:Object = result[file];
+				attachment = new CouchAttachment( file, result[file].content_type );
+				attachment.document = document;
+				attachments.push( attachment );
+			}
+			return attachments;
 		}
 		
 		/**
@@ -88,7 +114,7 @@ package com.custardbelly.as3couchdb.serialize
 		public function updateDocumentFromRead( document:CouchDocument, result:Object ):void
 		{
 			document.revision = result["_rev"];
-			document.attachments = result["_attachments"];
+			document.attachments = createAssociatedAttachments( document, result["_attachments"] );
 			var attribute:String;
 			for( attribute in result )
 			{

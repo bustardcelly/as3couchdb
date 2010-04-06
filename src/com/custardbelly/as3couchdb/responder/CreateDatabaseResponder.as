@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CreateDatabaseResponder.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,14 +54,7 @@ package com.custardbelly.as3couchdb.responder
 		 */
 		override public function handleResult( value:CouchServiceResult ):void
 		{
-			// determine if error.
-			var result:Object = value.data;
-			if( _reader.isResultAnError( result ) )
-			{
-				handleFault( new CouchServiceFault( result["error"], result["reason"] ) );
-			}
-			// else notify any responder.
-			else
+			if( !handleAsResultError( value ) )
 			{
 				if( _responder ) _responder.handleResult( new CouchServiceResult( _action, _database ) );
 			}
@@ -76,7 +69,7 @@ package com.custardbelly.as3couchdb.responder
 			// If a 412 has happened, customize the fault response.
 			if( _status == CouchRequestStatus.HTTP_ALREADY_EXISTS )
 			{
-				var fault:CouchServiceFault = new CouchServiceFault( CouchFaultType.DATABASE_ALREADY_EXISTS, "Database with name [" + _database.db_name + "] already exists at " + _database.baseUrl + "." );
+				var fault:CouchServiceFault = new CouchServiceFault( CouchFaultType.DATABASE_ALREADY_EXISTS, _status, "Database with name [" + _database.db_name + "] already exists at " + _database.baseUrl + "." );
 				super.handleFault( fault );
 			}
 			// else pass along the super fault handler.

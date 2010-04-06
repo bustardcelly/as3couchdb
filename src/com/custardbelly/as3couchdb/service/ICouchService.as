@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchService.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
  */
 package com.custardbelly.as3couchdb.service
 {
+	import com.custardbelly.as3couchdb.command.IRequestCommand;
 	import com.custardbelly.as3couchdb.core.CouchUser;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 
@@ -40,7 +41,7 @@ package com.custardbelly.as3couchdb.service
 		 * Creates a session for the service to use for authentication of requests. 
 		 * @param user CouchUser
 		 */
-		function createSession( user:CouchUser, responder:ICouchServiceResponder = null ):void;
+		function createSession( user:CouchUser, responder:ICouchServiceResponder = null ):IRequestCommand;
 		
 		/**
 		 * Performs any cleanup prior to garbage collection.

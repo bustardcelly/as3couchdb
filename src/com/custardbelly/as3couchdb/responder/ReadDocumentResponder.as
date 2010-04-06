@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ReadDocumentResponder.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,9 +42,9 @@ package com.custardbelly.as3couchdb.responder
 		 * @param document CouchDocument
 		 * @param responder ICouchServiceResponder
 		 */
-		public function ReadDocumentResponder(document:CouchDocument, responder:ICouchServiceResponder)
+		public function ReadDocumentResponder( document:CouchDocument, action:String, responder:ICouchServiceResponder )
 		{
-			super(document, CouchActionType.READ, responder);
+			super(document, action, responder);
 		}
 		
 		/**
@@ -52,15 +52,10 @@ package com.custardbelly.as3couchdb.responder
 		 */
 		override public function handleResult( value:CouchServiceResult ):void
 		{
-			var result:Object = value.data;
-			if( _reader.isResultAnError( result ) )
-			{
-				handleFault( new CouchServiceFault( result["error"], result["reason"] ) );
-			}
-			else
+			if( !handleResultAsError( value ) )
 			{
 				// use reader to update target document based on result.
-				_reader.updateDocumentFromRead( _document, result );
+				_reader.updateDocumentFromRead( _document, value.data );
 				if( _responder ) _responder.handleResult( new CouchServiceResult( _action, _document ) );
 			}
 		}

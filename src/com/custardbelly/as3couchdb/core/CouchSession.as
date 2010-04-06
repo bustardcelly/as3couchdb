@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchSession.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -68,7 +68,6 @@ package com.custardbelly.as3couchdb.core
 			_headers = [];
 			_headers.push( new URLRequestHeader( "Cookie", _cookie ) );
 			_headers.push( new URLRequestHeader( "X-CouchDB-WWW-Authenticate", "Cookie" ) );
-			_headers.push( new URLRequestHeader( "Content-Type", "application/x-www-form-urlencoded" ) );
 		}
 		
 		/**
@@ -83,11 +82,14 @@ package com.custardbelly.as3couchdb.core
 		
 		/**
 		 * @private
+		 * 
 		 * Renews the cookie for a session.
+		 * @param pendingCommand The pending command in chain after renewal.
+		 * @return IRequestCommand
 		 */
-		as3couchdb_internal function renew( command:IRequestCommand ):void
+		as3couchdb_internal function renew():IRequestCommand
 		{
-			_actionMediator.doRenew( _user, command );
+			return _actionMediator.createRenewRequest( _user );
 		}
 		
 		/**

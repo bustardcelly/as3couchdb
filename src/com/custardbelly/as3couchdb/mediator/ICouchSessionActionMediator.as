@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchSessionActionMediator.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,16 +36,15 @@ package com.custardbelly.as3couchdb.mediator
 	public interface ICouchSessionActionMediator extends IServiceMediator
 	{
 		/**
+		 * Invokes service to renew session and complete pending request. 
+		 * @param user CouchUser
+		 * @return IRequestCommand
+		 */
+		function createRenewRequest( user:CouchUser ):IRequestCommand;
+		/**
 		 * Invokes service to create a new session based on user credentials. 
 		 * @param user CouchUser
 		 */
 		function doCreate( user:CouchUser ):void;
-		
-		/**
-		 * Invokes service to renew session and complete pending request. 
-		 * @param user CouchUser
-		 * @param requestCommand IRequestCommand
-		 */
-		function doRenew( user:CouchUser, requestCommand:IRequestCommand ):void;
 	}
 }

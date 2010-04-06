@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: AbstractCouchRequest.as</p>
- * <p>Version: 0.3</p>
+ * <p>Version: 0.4</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -81,11 +81,11 @@ package com.custardbelly.as3couchdb.service
 		 * @param type String
 		 * @param message String
 		 */
-		protected function respondToFault( type:String, message:String ):void
+		protected function respondToFault( type:String, status:int, message:String ):void
 		{
 			if( _isInactive || _responder == null ) return;
 			
-			_responder.handleFault( new CouchServiceFault( type, message ) );
+			_responder.handleFault( new CouchServiceFault( type, status, message ) );
 		}
 		
 		/**
