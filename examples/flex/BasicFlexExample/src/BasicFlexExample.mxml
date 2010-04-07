@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   minWidth="955" minHeight="600">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.custardbelly.as3couchdb.core.CouchDatabase;
+			import com.custardbelly.as3couchdb.core.CouchDocument;
+			import com.custardbelly.as3couchdb.core.CouchServiceFault;
+			import com.custardbelly.as3couchdb.core.CouchServiceResult;
+			import com.custardbelly.as3couchdb.enum.CouchActionType;
+			import com.custardbelly.as3couchdb.event.CouchEvent;
+			import com.custardbelly.couchdb.example.model.ContactDatabase;
+			import com.custardbelly.couchdb.example.model.ContactDocument;
+
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			
+			private var _database:ContactDatabase;
+			private var _document:ContactDocument;
+			
+			[Bindable]
+			public var contactsCollection:ArrayCollection;
+			
+			private function loadDatabase():void
+			{
+				// Creates Database if not already exists.
+				_database = new ContactDatabase();
+				_database.addEventListener( CouchActionType.CREATE, handleDatabaseRead, false, 0, true );
+				_database.addEventListener( CouchEvent.FAULT, handleDatabaseFault, false, 0, true );
+				_database.addEventListener( CouchActionType.READ_DOCUMENTS, handleAllDocumentsRead, false, 0, true );
+				_database.createIfNotExist();
+			}
+			
+			private function loadAllContacts():void
+			{
+				// Loads all documents related to database.
+				_database.getAllDocuments( "com.custardbelly.couchdb.example.model.ContactDocument" );
+			}
+			
+			private function createDocument( firstName:String, lastName:String, email:String ):void
+			{
+				// Creates a new contact document.
+				_document = new ContactDocument();
+				_document.firstName = firstName;
+				_document.lastName = lastName;
+				_document.email = email;
+				_document.addEventListener( CouchActionType.CREATE, handleDocumentCreate, false, 0, true );
+				_document.addEventListener( CouchEvent.FAULT, handleDocumentFault, false, 0, true );
+				_document.create();
+			}
+			
+			// Event handler for submit of new contact
+			private function handleSubmit():void
+			{
+				createDocument( firstNameField.text, lastNameField.text, emailField.text );
+			}
+			
+			// Event handler for read in of database from createIfNotExists.
+			private function handleDatabaseRead( evt:CouchEvent ):void
+			{
+				var result:CouchServiceResult = evt.data as CouchServiceResult;
+				var theDotabaseRead:CouchDatabase = result.data as CouchDatabase;
+				// theDatabaseRead is the same as the class member _database.
+				// Just showing how you can access the database from the event.
+				
+				contactForm.enabled = true;
+				listForm.enabled = true;
+				loadDatabaseButton.enabled = false;
+			}
+			
+			// Event handler of read in of all documents from database.
+			private function handleAllDocumentsRead( evt:CouchEvent ):void
+			{
+				var result:CouchServiceResult = evt.data as CouchServiceResult;
+				var list:Array = result.data as Array;
+				contactsCollection = new ArrayCollection( list );
+			}
+			
+			// Event handler for creation of document.
+			private function handleDocumentCreate( evt:CouchEvent ):void
+			{
+				var result:CouchServiceResult = evt.data as CouchServiceResult;
+				var document:CouchDocument = result.data as CouchDocument;
+				// document is the same as the class member _document.
+				// Just showing how you can access the document from the event.
+				
+				// Clear out form.
+				firstNameField.text = "";
+				lastNameField.text = "";
+				emailField.text = "";
+				// Reload through service.
+				loadAllContacts();
+			}
+			
+			// Event handler for fault in service related to database.
+			private function handleDatabaseFault( evt:CouchEvent ):void
+			{
+				var fault:CouchServiceFault = evt.data as CouchServiceFault;
+				Alert.show( fault.message, "Database Error:" );
+			}
+			
+			// Event hanlder for fault in service related to document.
+			private function handleDocumentFault( evt:CouchEvent ):void
+			{
+				var fault:CouchServiceFault = evt.data as CouchServiceFault;
+				Alert.show( fault.message, "Document Error:" );
+			}
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+	
+	<fx:Binding source="contactsCollection" destination="contactsList.dataProvider" />
+	
+	<s:BorderContainer width="300" height="200">
+		
+		<s:layout>
+			<s:VerticalLayout paddingLeft="5" paddingRight="5"
+							  paddingTop="5" paddingBottom="5"
+							  />
+		</s:layout>
+		
+		<!-- Database controls. -->
+		<s:HGroup verticalAlign="bottom">
+			<s:Label text="Contacts Database." />
+			<s:Button id="loadDatabaseButton" 
+					  label="load database" 
+					  click="loadDatabase();" 
+					  />
+		</s:HGroup>
+		
+		<!-- Contacts list -->
+		<s:VGroup id="listForm" width="100%" height="100%" enabled="false">
+			<s:List id="contactsList" 
+					width="100%" height="100%"
+					itemRenderer="com.custardbelly.couchdb.example.view.ContactItemRenderer">
+				<s:layout>
+					<s:VerticalLayout paddingLeft="5" paddingRight="5" 
+									  paddingTop="5" paddingBottom="5" 
+									  />
+				</s:layout>
+			</s:List>
+			<s:Button label="load contacts" click="loadAllContacts();" />
+		</s:VGroup>
+		
+	</s:BorderContainer>
+	
+	<!-- Contact Form -->
+	<s:BorderContainer id="contactForm" width="300" enabled="false">
+		
+		<s:layout>
+			<s:VerticalLayout paddingLeft="5" paddingRight="5"
+							  paddingTop="5" paddingBottom="5"
+							  horizontalAlign="center"
+							  />
+		</s:layout>
+		
+		<s:Label text="Add Contact:" />
+		<s:HGroup width="100%" verticalAlign="bottom">
+			<s:Label width="65" text="First Name:" />
+			<s:TextInput id="firstNameField" width="100%" />
+		</s:HGroup>
+		<s:HGroup width="100%" verticalAlign="bottom">
+			<s:Label width="65" text="Last Name:" />
+			<s:TextInput id="lastNameField" width="100%" />
+		</s:HGroup>
+		<s:HGroup width="100%" verticalAlign="bottom">
+			<s:Label width="65" text="Email:" />
+			<s:TextInput id="emailField" width="100%" />
+		</s:HGroup>
+		
+		<s:Button label="submit" click="handleSubmit();" />
+		
+	</s:BorderContainer>
+	
+</s:Application>

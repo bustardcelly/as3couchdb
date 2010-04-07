@@ -1,0 +1,16 @@
+Necessary compiler options:
+
+------------
+Metadata
+------------
+In order to recognize the custom metadata used for the model entities, the following metadata need to be added to the
+-keep-as3-metadata compiler option:
+
+-keep-as3-metadata=DocumentService,ServiceMediator,RequestType 
+
+------------
+Config
+------------
+An additional flex configuration is added in order to compile in necessary classes from as3couchdb library.
+
+-load-config+=as3couchdb.config 
