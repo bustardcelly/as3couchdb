@@ -47,11 +47,11 @@
 		
 		<s:HGroup width="100%" verticalAlign="bottom">
 			<s:Label text="Username:" width="60" />
-			<s:TextInput id="nameField" width="100%" text="toddanderson" />
+			<s:TextInput id="nameField" width="100%" />
 		</s:HGroup>
 		<s:HGroup width="100%" verticalAlign="bottom">
 			<s:Label text="Password:" width="60" />
-			<s:TextInput id="passwordField" width="100%" text="marlboro" />
+			<s:TextInput id="passwordField" width="100%" />
 		</s:HGroup>
 		
 		<s:Group width="100%">
