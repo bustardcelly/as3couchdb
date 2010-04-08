@@ -68,7 +68,7 @@ package com.custardbelly.as3couchdb.serialize
 		protected function createAssociatedAttachments( document:CouchDocument, result:Object ):Vector.<CouchAttachment>
 		{
 			use namespace as3couchdb_internal;
-			var attachments:Vector.<CouchAttachment> = new Vector.<CouchAttachment>();
+			var attachments:Vector.<CouchAttachment> = ( document.attachments ) ? document.attachments : new Vector.<CouchAttachment>();
 			var file:String
 			var attachment:CouchAttachment;
 			for( file in result )
@@ -76,6 +76,7 @@ package com.custardbelly.as3couchdb.serialize
 				var obj:Object = result[file];
 				attachment = new CouchAttachment( file, result[file].content_type );
 				attachment.document = document;
+				attachment.url = document.baseUrl + "/" + document.databaseName + "/" + document.id + "/" + file;
 				attachments.push( attachment );
 			}
 			return attachments;
@@ -151,7 +152,7 @@ package com.custardbelly.as3couchdb.serialize
 		{
 			document.id = result["id"];
 			document.revision = result["rev"];
-			document.attachments = result["attachments"];
+			document.attachments = createAssociatedAttachments( document, result["_attachments"] );
 		}
 	}
 }

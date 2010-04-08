@@ -34,5 +34,6 @@ package com.custardbelly.as3couchdb.enum
 	{
 		public static const JSON:String = "application/json";
 		public static const JPEG:String = "image/jpeg";
+		public static const PNG:String = "image/png";
 	}
 }

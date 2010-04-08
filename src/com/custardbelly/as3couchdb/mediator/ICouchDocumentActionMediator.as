@@ -47,7 +47,8 @@ package com.custardbelly.as3couchdb.mediator
 		function doDelete():void;
 		/**
 		 * Invokes service to save changed or unsaved attachments associate with the document.
+		 * @param documentAction String The related action to notify responders with in association with saving attachments of a document.
 		 */
-		function doSaveAttachments():void;
+		function doSaveAttachments( documentAction:String = "" ):void;
 	}
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	
+	<fx:Metadata>
+		[HostComponent("com.custardbelly.couchdb.example.view.alert.ContactDeleteForm")]
+	</fx:Metadata>
+	
+	<s:layout>
+		<s:VerticalLayout gap="20" 
+						  verticalAlign="middle" horizontalAlign="center"
+						  paddingTop="10" paddingBottom="10" 
+						  paddingRight="10" paddingLeft="10" />
+	</s:layout>
+	
+	<s:Label id="alertField" width="100%" textAlign="center" />
+	<s:HGroup>
+		<s:Button id="submitButton" label="Yes" />
+		<s:Button id="cancelButton" label="No" />
+	</s:HGroup>
+	
+</s:Skin>

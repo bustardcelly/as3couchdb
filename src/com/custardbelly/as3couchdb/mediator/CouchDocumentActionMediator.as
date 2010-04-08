@@ -52,6 +52,7 @@ package com.custardbelly.as3couchdb.mediator
 	{
 		protected var _document:CouchDocument;
 		protected var _service:ICouchDocumentService;
+		protected var _documentUpdateResponder:ICouchServiceResponder;
 		protected var _serviceResponder:BasicCouchResponder;
 		protected var _attachmentRequestQueue:AttachmentRequestQueue;
 		
@@ -74,6 +75,8 @@ package com.custardbelly.as3couchdb.mediator
 		{
 			_document = target as CouchDocument;
 			_service = CouchDocumentService.getDocumentService( baseUrl, databaseName, request );
+			// Create document update responder to handle success of modification of document, so as to continue with attachments.
+			_documentUpdateResponder = new BasicCouchResponder( handleDocumentUpdateResult, handleServiceFault );
 			// Create basic responder to handle result and fault from service.
 			_serviceResponder = new BasicCouchResponder( handleServiceResult, handleServiceFault );	
 		}
@@ -103,6 +106,17 @@ package com.custardbelly.as3couchdb.mediator
 		}
 		
 		/**
+		 * @private
+		 * 
+		 * Responder method for update or create of document. Forwards on with attachment updates. 
+		 * @param result CouchServiceResult
+		 */
+		protected function handleDocumentUpdateResult( result:CouchServiceResult ):void
+		{
+			doSaveAttachments( result.action );
+		}
+		
+		/**
 		 * Invokes the ICouchDocumentService to read in and apply attributes to the target document. 
 		 * @param id String
 		 */
@@ -120,9 +134,10 @@ package com.custardbelly.as3couchdb.mediator
 		{
 			// Create the appropriate service responder based on document id.
 			// If the document id is null, it is a new document instance and should instruct the service to create the document first.
+			// Resolve respondse handler to documentUpdateResponder in order to queue up any attachments associated with document.
 			var responder:ICouchServiceResponder = ( _document.id )
-													? new UpdateDocumentResponder( _document, CouchActionType.UPDATE, _serviceResponder )
-													: new CreateDocumentResponder( _document, _serviceResponder );
+													? new UpdateDocumentResponder( _document, CouchActionType.UPDATE, _documentUpdateResponder )
+													: new CreateDocumentResponder( _document, _documentUpdateResponder );
 			
 			_service.saveDocument( _document, responder ).execute();
 		}
@@ -138,14 +153,16 @@ package com.custardbelly.as3couchdb.mediator
 		
 		/**
 		 * Invokes service to save changed, unsaved, or deleted attachments associate with the document.
+		 * @param documentAction String The related action to notify responders with in association with saving attachments of a document.
 		 */
-		public function doSaveAttachments():void
+		public function doSaveAttachments( documentAction:String = CouchActionType.UPDATE ):void
 		{
 			// Create attachment request queue if not already existant.
 			if( _attachmentRequestQueue == null )
 			{
 				_attachmentRequestQueue = new AttachmentRequestQueue( _document, _service, _serviceResponder );
 			}
+			_attachmentRequestQueue.documentAction = documentAction;
 			
 			// Run through attachments and mark those needed requests.
 			var attachments:Vector.<CouchAttachment> = new Vector.<CouchAttachment>();

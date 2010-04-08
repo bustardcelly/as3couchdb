@@ -39,6 +39,7 @@ package com.custardbelly.as3couchdb.core
 		protected var _fileName:String;
 		protected var _contentType:String;
 		protected var _data:*;
+		protected var _url:String;
 		protected var _revisionPosition:String;
 		protected var _document:CouchDocument;
 		protected var _isDirty:Boolean;
@@ -75,6 +76,8 @@ package com.custardbelly.as3couchdb.core
 		}
 		public function set fileName(value:String):void
 		{
+			if( _fileName == value ) return;
+			
 			_fileName = value;
 			_isDirty = true;
 		}
@@ -89,6 +92,8 @@ package com.custardbelly.as3couchdb.core
 		}
 		public function set contentType(value:String):void
 		{
+			if( _contentType == value ) return;
+			
 			_contentType = value;
 			_isDirty = true;
 		}
@@ -103,8 +108,23 @@ package com.custardbelly.as3couchdb.core
 		}
 		public function set data(value:*):void
 		{
+			if( _data == value ) return;
+			
 			_data = value;
 			_isDirty = true;
+		}
+		
+		/**
+		 * Accessor/Modifier to the full url of where the attachment exists. 
+		 * @return String
+		 */
+		public function get url():String
+		{
+			return _url;
+		}
+		public function set url( value:String ):void
+		{
+			_url = value;
 		}
 		
 		/**

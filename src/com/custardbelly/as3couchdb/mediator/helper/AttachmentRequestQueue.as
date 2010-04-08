@@ -56,6 +56,8 @@ package com.custardbelly.as3couchdb.mediator.helper
 		protected var _isRunning:Boolean;
 		protected var _currentAttachment:CouchAttachment;
 		
+		protected var _action:String = CouchActionType.UPDATE;
+		
 		/**
 		 * Constructor. 
 		 * @param document CouchDocument
@@ -117,7 +119,7 @@ package com.custardbelly.as3couchdb.mediator.helper
 		protected function notifyOfResult():void
 		{
 			if( _finalResponder )
-				_finalResponder.handleResult( new CouchServiceResult( CouchActionType.UPDATE, _document ) );
+				_finalResponder.handleResult( new CouchServiceResult( _action, _document ) );
 		}
 		
 		/**
@@ -224,6 +226,21 @@ package com.custardbelly.as3couchdb.mediator.helper
 		public function start():void
 		{
 			if( !_isRunning ) loadNext();
+		}
+		
+		/**
+		 * Accessor/Modifier to the appropriate action to relate the saving of documents to. When a success complete 
+		 * has been reached, responders are notified of a particular action. Usually this will be from Update or Create
+		 * of document. 
+		 * @return String
+		 */
+		public function get documentAction():String
+		{
+			return _action;
+		}
+		public function set documentAction( value:String ):void
+		{
+			_action = value;
 		}
 	}
 }
