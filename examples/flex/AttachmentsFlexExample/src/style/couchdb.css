@@ -1,0 +1,11 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace alert "com.custardbelly.couchdb.view.alert.*";
+@namespace model "com.custardbelly.couchdb.model.*";
+
+.contactEditForm {
+	skinClass: ClassReference("com.custardbelly.couchdb.example.view.alert.ContactEditFormSkin");
+}
+.contactDeleteForm {
+	skinClass: ClassReference("com.custardbelly.couchdb.example.view.alert.ContactDeleteFormSkin");
+}

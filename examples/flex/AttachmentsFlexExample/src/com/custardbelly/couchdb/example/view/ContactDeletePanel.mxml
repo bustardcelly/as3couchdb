@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:alert="com.custardbelly.couchdb.example.view.alert.*"
+		 width="400" height="200"
+		 title="Delete Contact:">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.custardbelly.couchdb.example.model.ContactDocument;
+			
+			protected var _contact:ContactDocument;
+			
+			[Bindable]
+			public function get contact():ContactDocument
+			{
+				return _contact;
+			}
+			public function set contact( value:ContactDocument ):void
+			{
+				_contact = value;
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Binding source="contact" destination="form.contact" />
+	<alert:ContactDeleteForm id="form" 
+							 styleName="contactDeleteForm" 
+							 width="100%" height="100%" 
+							 />
+	
+</s:Panel>
