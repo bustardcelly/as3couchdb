@@ -1,6 +1,15 @@
 <?xml version="1.0"?>
 <project name="as3couchdb" basedir="." default="lib">
 	
+	<!-- as3couchdb library requires the following libraries in order to be built properly: 	-->
+	<!-- [as3corelib] can be found at: http://code.google.com/p/as3corelib/ 					-->
+	<!-- [as3crypto] can be found at http://code.google.com/p/as3crypto/ 						-->
+	<!-- [as3httpclientlib] can be found at: http://code.google.com/p/as3httpclientlib 			-->
+	<!-- The 'lib' target locates these external libraries within a directory described in the	-->
+	<!-- build.properties file denoted as ${lib.dir}. Make sure you have these libraries within	-->
+	<!-- that defined directory in order to properly build the as3couchdb.swc and/or optimized	-->
+	<!-- SWF file.																				-->
+	
 	<!-- Property file. -->
 	<property file="build.properties" />
 	
