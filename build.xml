@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<project name="as3couchdb" basedir="." default="lib">
+	
+	<!-- Property file. -->
+	<property file="build.properties" />
+	
+	<!-- Clean previously build library based on version. -->
+	<target name="clean-lib" description="Cleans any previously build library related to projectname-version">
+		<echo>[CLEAN] Cleaning ${bin.dir}/${library.name}.swc</echo>
+		<delete file="${bin.dir}}/${library.name}}" />
+		<echo>[CLEAN] Successfully cleaned ${bin.dir}/${library.name}.swc</echo>
+	</target>
+	
+	<!-- Clean documents directory. -->
+	<target name="clean-doc" description="Cleans the document directory.">
+		<echo>[CLEAN] Cleaning ${doc.dir}</echo>
+		<delete includeemptydirs="true">
+			<fileset dir="${doc.dir}" includes="**/*" />
+		</delete>
+		<echo>[CLEAN] Successfully cleaned ${doc.dir}</echo>
+	</target>
+	
+	<!-- Unpacks built library SWC in order to optimize. -->
+	<target name="unpack-lib" depends="lib" description="Unpacks the pre-packaged library SWC.">
+		<echo>[UNZIP] Unpackaging ${library.name}.swc.</echo>
+		<unzip src="${bin.dir}/${library.name}.swc" dest="${optimize.temp.dir}" />
+		<echo>[COPY] Moving unpacked library SWF to ${bin.dir}</echo>
+		<copy file="${optimize.temp.dir}/library.swf" tofile="${bin.dir}/${library.name}.swf" />
+		<echo>[CLEAN] Removing temporary directory for unpacking ${library.name}.swc.</echo>
+		<delete dir="${optimize.temp.dir}" includeemptydirs="true" />
+		<echo>[CLEAN] Successful unpackage of ${library.name}.swc</echo>
+	</target>
+	
+	<!-- Build the library swc. DEFAULT -->
+	<target name="lib" depends="clean-lib" description="Generates the library SWC.">
+		<echo>[EXEC] Compiling ${library.name}.swc</echo>
+		<exec executable="${compc.loc}" dir="${basedir}">
+			<arg line="-external-library-path ${flexsdk.lib.dir}" />
+			<arg line="-external-library-path ${playerglobal.lib.dir}" />
+			<arg line="-library-path+=${lib.dir}" />
+			<arg line="-source-path ${src.dir}" />
+			<arg line="-include-sources ${src.dir}" />
+			<arg line="-output '${bin.dir}/${library.name}.swc'" />
+		</exec>
+		<echo>[EXEC] Finished compiling ${library.name}.swc. ${library.name}.swc can be found in ${bin.dir}/.</echo>
+	</target>
+	
+	<!-- Build the optimized swf based on the output library SWC. -->
+	<target name="optimize" depends="unpack-lib" description="Optimizes the library SWC into a generated SWF file.">
+		<echo>[EXEC] Optimizing ${library.name}</echo>
+		<exec executable="${optimizer.loc}">
+			<arg line="-input ${bin.dir}/${library.name}.swf" />
+			<arg line="-output ${bin.dir}}/${library.name}.swf" />
+		</exec>
+		<echo>[EXEC] Finished optimizing ${library.name}. The optimized SWF can be found at ${bin.dir}/${library.name}.swf</echo>
+	</target>
+	
+	<!-- Create the ASDocs for the library project. -->
+	<target name="doc" depends="clean-doc" description="Creates the ASDoc files for the library project.">
+		<exec executable="${asdoc.loc}" spawn="no">
+			<arg line="-library-path+=${lib.dir}" />
+			<arg line="-source-path ${src.dir}" />
+			<arg line="-doc-sources ${src.dir} " />
+			<arg line="-output ${doc.dir}" />
+			<arg line="-window-title 'AS3CouchDB Library - ${library.name}' "/>
+		</exec>
+	</target>
+	
+</project>
