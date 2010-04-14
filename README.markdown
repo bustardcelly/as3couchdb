@@ -1,6 +1,6 @@
 # License
 
-[Please see the License file](LICENSE)
+[Please see the License file](blob/master/LICENSE)
 
 # About
 
