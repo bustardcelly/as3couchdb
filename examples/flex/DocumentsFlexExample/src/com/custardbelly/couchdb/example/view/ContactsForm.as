@@ -337,9 +337,10 @@ package com.custardbelly.couchdb.example.view
 		protected function handleContactSave( evt:ContactEvent ):void
 		{
 			var contact:ContactDocument = evt.contact;
+			contact.addEventListener( CouchActionType.CREATE, handleContactSaveResult );
+			contact.addEventListener( CouchActionType.UPDATE, handleContactSaveResult );
 			contact.update();
 			hideEditPanel();
-			loadContacts();
 		}
 		
 		/**

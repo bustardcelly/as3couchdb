@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabase.as</p>
- * <p>Version: 0.4</p>
+ * <p>Version: 0.4.1</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,10 +38,6 @@ package com.custardbelly.as3couchdb.core
 	 * Dispatched upon successful read in and application of attributes from a database instance in CouchDB. 
 	 */
 	[Event(name="read", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
-	/**
-	 * Dispatched upon successful creation and save of a database in CouchDB. 
-	 */
-	[Event(name="save", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
 	/**
 	 * Dispatched upon successful deletion of database in CouchDB. 
 	 */

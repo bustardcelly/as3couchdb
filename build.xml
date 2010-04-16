@@ -5,10 +5,18 @@
 	<!-- [as3corelib] can be found at: http://code.google.com/p/as3corelib/ 					-->
 	<!-- [as3crypto] can be found at http://code.google.com/p/as3crypto/ 						-->
 	<!-- [as3httpclientlib] can be found at: http://code.google.com/p/as3httpclientlib 			-->
+	<!--																						-->
 	<!-- The 'lib' target locates these external libraries within a directory described in the	-->
 	<!-- build.properties file denoted as ${lib.dir}. Make sure you have these libraries within	-->
 	<!-- that defined directory in order to properly build the as3couchdb.swc and/or optimized	-->
 	<!-- SWF file.																				-->
+	<!-- 																						-->
+	<!-- In order to be truly ActionScript 3 compliant (and not resticted to rely on classes 	-->
+	<!-- from the Flex framework), specific sources are targeted from the as3corelib project.	-->
+	<!-- Specifically, these are the JSON and NET packages, and the StringUtil class.			-->
+	<!-- The project is set up to have a local checkout of as3corelib within a directory		-->
+	<!-- called externals on the root basedir. compc looks into this directory for as3corelib	-->
+	<!-- sources listed in build.properties.													-->
 	
 	<!-- Property file. -->
 	<property file="build.properties" />
@@ -44,11 +52,15 @@
 	<target name="lib" depends="clean-lib" description="Generates the library SWC.">
 		<echo>[EXEC] Compiling ${library.name}.swc</echo>
 		<exec executable="${compc.loc}" dir="${basedir}">
+			<!--<arg line="-load-config+=${basedir}/as3couchdb-config.xml" />-->
 			<arg line="-external-library-path ${flexsdk.lib.dir}" />
 			<arg line="-external-library-path ${playerglobal.lib.dir}" />
 			<arg line="-library-path+=${lib.dir}" />
 			<arg line="-source-path ${src.dir}" />
 			<arg line="-include-sources ${src.dir}" />
+			<arg line="-include-sources ${as3corelib.net.src}" />
+			<arg line="-include-sources ${as3corelib.json.src}" />
+			<arg line="-include-sources ${as3corelib.utils.StringUtil}" />
 			<arg line="-output '${bin.dir}/${library.name}.swc'" />
 		</exec>
 		<echo>[EXEC] Finished compiling ${library.name}.swc. ${library.name}.swc can be found in ${bin.dir}/.</echo>

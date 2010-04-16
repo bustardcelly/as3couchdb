@@ -17,6 +17,8 @@
 			import com.custardbelly.couchdb.example.event.ContactEvent;
 			import com.custardbelly.couchdb.example.model.ContactDocument;
 			
+			import flash.utils.getQualifiedClassName;
+			
 			protected var _data:ContactDocument;
 			
 			protected function findIconAttachment():CouchAttachment
@@ -43,6 +45,7 @@
 					{
 						var loader:Loader = new Loader();
 						loader.contentLoaderInfo.addEventListener(Event.COMPLETE, handleIconLoadComplete);
+						loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, handleLoadError);
 						loader.load( new URLRequest( attachment.url ) );
 					}
 				}
@@ -53,6 +56,11 @@
 				var info:LoaderInfo = ( evt.target as LoaderInfo );
 				info.removeEventListener( Event.COMPLETE, handleIconLoadComplete );
 				userImage.source = info.content as Bitmap;
+			}
+			
+			protected function handleLoadError( evt:IOErrorEvent ):void
+			{
+				trace( "[" + getQualifiedClassName(this) + "] IOErrorEvent:: " + evt.text );
 			}
 			
 			protected function handleEdit():void

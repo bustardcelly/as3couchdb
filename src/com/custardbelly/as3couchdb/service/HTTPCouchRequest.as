@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: HTTPCouchRequest.as</p>
- * <p>Version: 0.4</p>
+ * <p>Version: 0.4.1</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,6 @@
 package com.custardbelly.as3couchdb.service
 {
 	import com.adobe.net.URI;
-	import com.adobe.protocols.dict.events.ErrorEvent;
 	import com.adobe.serialization.json.JSON;
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
@@ -36,6 +35,7 @@ package com.custardbelly.as3couchdb.service
 	import com.custardbelly.as3couchdb.event.CouchEvent;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 	
+	import flash.events.ErrorEvent;
 	import flash.events.Event;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.URLRequest;
@@ -163,7 +163,7 @@ package com.custardbelly.as3couchdb.service
 			// Security and Error Events.
 			var message:String = "Unknown error occured.";
 			if( evt is ErrorEvent )
-				message = ( evt as ErrorEvent ).message;
+				message = ( evt as ErrorEvent ).text;
 			
 			respondToFault( CouchEvent.FAULT, 0, message );
 		}

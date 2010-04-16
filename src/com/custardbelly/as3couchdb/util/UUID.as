@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: UUID.as</p>
- * <p>Version: 0.4</p>
+ * <p>Version: 0.4.1</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,10 @@
  */
 package com.custardbelly.as3couchdb.util
 {
-	import com.adobe.crypto.SHA1;
+	import com.hurlant.crypto.hash.SHA1;
+	import com.hurlant.crypto.hash.SHA256;
+	
+	import flash.utils.ByteArray;
 
 	/**
 	 * UUID is a utility class to generate a unique id to be used whe creating and saving a document to a CouchDB instance. 
@@ -41,7 +44,18 @@ package com.custardbelly.as3couchdb.util
 		 */
 		public static function generate( url:String ):String
 		{
-			return SHA1.hash( ( new Date().time.toString() + "@" + url ).toString() + "-" + Math.random().toString() );
+			var bytes:ByteArray = new ByteArray();
+			bytes.writeUTFBytes( ( new Date().time.toString() + "@" + url ).toString() + "-" + Math.random().toString() );
+			bytes.position = 0;
+			
+			var hash:ByteArray = new SHA256().hash( bytes );
+			hash.position = 0;
+			
+			var uid:String = "";
+			while( hash.position < hash.bytesAvailable )
+				uid += hash.readUnsignedInt().toString(16);
+			
+			return uid;
 		}
 	}
 }
