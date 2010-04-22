@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<flex-config xmlns="http://www.adobe.com/2006/flex-config">
+
+	<compiler>
+    	<external-library-path>
+      		<path-element>${playerglobal.lib.dir}</path-element>
+      		<path-element>${lib.dir}</path-element>
+    	</external-library-path>
+    	<source-path>
+    		<path-element>${src.dir}</path-element>
+    	</source-path>
+  	</compiler>
+  	
+  	<include-sources append="true">
+  		<path-element>${as3corelib.net.src}</path-element>
+  		<path-element>${as3corelib.json.src}</path-element>
+  		<path-element>${as3corelib.utils.StringUtil}</path-element>
+  	</include-sources>
+  	
+  	<include-classes>
+    	<class>com.custardbelly.as3couchdb.as3couchdb_internal</class>
+    	<class>com.custardbelly.as3couchdb.command.CouchRequestCommand</class>
+    	<class>com.custardbelly.as3couchdb.command.CreateDatabaseCommand</class>
+    	<class>com.custardbelly.as3couchdb.command.IRequestCommand</class>
+    	<class>com.custardbelly.as3couchdb.core.CouchAttachment</class>
+    	<class>com.custardbelly.as3couchdb.core.CouchDatabase</class>
+    	<class>com.custardbelly.as3couchdb.core.CouchDocument</class>
+    	<class>com.custardbelly.as3couchdb.core.CouchModel</class>
+    	<class>com.custardbelly.as3couchdb.core.CouchModelEntity</class>
+    	<class>com.custardbelly.as3couchdb.core.CouchServiceFault</class>
+    	<class>com.custardbelly.as3couchdb.core.CouchServiceResult</class>
+   		<class>com.custardbelly.as3couchdb.core.CouchSession</class>
+    	<class>com.custardbelly.as3couchdb.core.CouchUser</class>
+    	<class>com.custardbelly.as3couchdb.enum.CouchActionType</class>
+    	<class>com.custardbelly.as3couchdb.enum.CouchContentType</class>
+   		<class>com.custardbelly.as3couchdb.enum.CouchFaultType</class>
+    	<class>com.custardbelly.as3couchdb.enum.CouchHeaderType</class>
+    	<class>com.custardbelly.as3couchdb.enum.CouchRequestMethod</class>
+    	<class>com.custardbelly.as3couchdb.enum.CouchRequestStatus</class>
+    	<class>com.custardbelly.as3couchdb.event.CouchEvent</class>
+    	<class>com.custardbelly.as3couchdb.mediator.CouchDatabaseActionMediator</class>
+    	<class>com.custardbelly.as3couchdb.mediator.CouchDocumentActionMediator</class>
+    	<class>com.custardbelly.as3couchdb.mediator.CouchSessionActionMediator</class>
+    	<class>com.custardbelly.as3couchdb.mediator.ICouchDatabaseActionMediator</class>
+    	<class>com.custardbelly.as3couchdb.mediator.ICouchDocumentActionMediator</class>
+    	<class>com.custardbelly.as3couchdb.mediator.ICouchSessionActionMediator</class>
+    	<class>com.custardbelly.as3couchdb.mediator.IServiceMediator</class>
+    	<class>com.custardbelly.as3couchdb.mediator.helper.AttachmentRequestQueue</class>
+    	<class>com.custardbelly.as3couchdb.net.CouchSessionResponse</class>
+    	<class>com.custardbelly.as3couchdb.responder.AbstractDatabaseResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.AbstractDocumentResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.BasicCouchResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.CreateDatabaseResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.CreateDocumentResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.CreateSessionResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.DeleteDatabaseResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.DeleteDocumentResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.ICouchServiceResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.ReadAllDocumentsResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.ReadDatabaseResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.ReadDocumentResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.ReadDocumentsFromViewResponder</class>
+    	<class>com.custardbelly.as3couchdb.responder.UpdateDocumentResponder</class>
+    	<class>com.custardbelly.as3couchdb.serialize.CouchDatabaseReader</class>
+    	<class>com.custardbelly.as3couchdb.serialize.CouchDatabaseWriter</class>
+    	<class>com.custardbelly.as3couchdb.serialize.CouchDocumentReader</class>
+    	<class>com.custardbelly.as3couchdb.serialize.CouchDocumentWriter</class>
+    	<class>com.custardbelly.as3couchdb.serialize.CouchResponseReader</class>
+    	<class>com.custardbelly.as3couchdb.serialize.ICouchDatabaseReader</class>
+    	<class>com.custardbelly.as3couchdb.serialize.ICouchDatabaseWriter</class>
+    	<class>com.custardbelly.as3couchdb.serialize.ICouchDocumentReader</class>
+    	<class>com.custardbelly.as3couchdb.serialize.ICouchDocumentWriter</class>
+    	<class>com.custardbelly.as3couchdb.serialize.ICouchResponseReader</class>
+    	<class>com.custardbelly.as3couchdb.service.AbstractCouchRequest</class>
+    	<class>com.custardbelly.as3couchdb.service.CouchDatabaseService</class>
+    	<class>com.custardbelly.as3couchdb.service.CouchDocumentService</class>
+    	<class>com.custardbelly.as3couchdb.service.CouchService</class>
+    	<class>com.custardbelly.as3couchdb.service.ExInCouchRequest</class>
+    	<class>com.custardbelly.as3couchdb.service.HTTPCouchRequest</class>
+    	<class>com.custardbelly.as3couchdb.service.HTTPSessionRequest</class>
+    	<class>com.custardbelly.as3couchdb.service.ICouchDatabaseService</class>
+    	<class>com.custardbelly.as3couchdb.service.ICouchDocumentService</class>
+    	<class>com.custardbelly.as3couchdb.service.ICouchRequest</class>
+    	<class>com.custardbelly.as3couchdb.service.ICouchService</class>
+    	<class>com.custardbelly.as3couchdb.util.UUID</class>
+  	</include-classes>
+  	
+  	<output>${lib.bin.dir}/${lib.name}.swc</output>
+  	
+  	<metadata>
+    	<creator>Todd Anderson</creator>
+    	<description>http://github.com/bustardcelly/as3couchdb</description>
+    	<language>EN</language>
+    	<title>External AS3 Library For CouchDB</title>
+  	</metadata>
+  	
+</flex-config>

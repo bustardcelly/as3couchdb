@@ -34,7 +34,9 @@ package com.custardbelly.as3couchdb.mediator
 	import com.custardbelly.as3couchdb.core.CouchUser;
 	import com.custardbelly.as3couchdb.enum.CouchActionType;
 	import com.custardbelly.as3couchdb.event.CouchEvent;
+	import com.custardbelly.as3couchdb.net.CouchSessionResponse;
 	import com.custardbelly.as3couchdb.responder.BasicCouchResponder;
+	import com.custardbelly.as3couchdb.responder.CreateSessionResponder;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 	import com.custardbelly.as3couchdb.service.CouchService;
 	import com.custardbelly.as3couchdb.service.ICouchRequest;
@@ -44,7 +46,6 @@ package com.custardbelly.as3couchdb.mediator
 	{
 		protected var _session:CouchSession;
 		protected var _service:ICouchService;
-		protected var _serviceResponder:ICouchServiceResponder;
 		protected var _pendingCommandRequest:IRequestCommand;
 		
 		/**
@@ -66,8 +67,6 @@ package com.custardbelly.as3couchdb.mediator
 		{
 			_session = target as CouchSession;
 			_service = CouchService.getSessionService( baseUrl, request );
-			// Create basic responder to handle result and fault from service.
-			_serviceResponder = new BasicCouchResponder( handleServiceResult, handleServiceFault );	
 		}
 		
 		/**
@@ -92,11 +91,12 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		protected function handleServiceResult( result:CouchServiceResult ):void
 		{	
-			var cookie:String = result.data.toString();
+			var response:CouchSessionResponse = result.data as CouchSessionResponse;
+			var cookie:String = response.cookie;
 			// Update session.
 			updateSession( cookie );
 			// Dispatch event through target document.
-			_session.dispatchEvent( new CouchEvent( CouchActionType.SESSION_CREATE, result ) );
+			_session.dispatchEvent( new CouchEvent( CouchActionType.SESSION_CREATE, _session ) );
 		}
 		
 		/**
@@ -119,7 +119,8 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		protected function handleRenewResult( result:CouchServiceResult ):void
 		{
-			var cookie:String = result.data.toString();
+			var response:CouchSessionResponse = result.data as CouchSessionResponse;
+			var cookie:String = response.cookie;
 			// Update session.
 			updateSession( cookie );
 		}
@@ -133,7 +134,7 @@ package com.custardbelly.as3couchdb.mediator
 		public function createRenewRequest( user:CouchUser ):IRequestCommand
 		{
 			// Request new session cookie.
-			return _service.createSession( user, new BasicCouchResponder( handleRenewResult, handleServiceFault ) );
+			return _service.createSession( user, new CreateSessionResponder( handleRenewResult, handleServiceFault ) );
 		}
 		
 		/**
@@ -142,7 +143,7 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doCreate( user:CouchUser ):void
 		{
-			_service.createSession( user, _serviceResponder ).execute();
+			_service.createSession( user, new CreateSessionResponder( handleServiceResult, handleServiceFault ) ).execute();
 		}
 	}
 }

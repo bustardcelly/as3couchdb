@@ -32,22 +32,12 @@ package com.custardbelly.as3couchdb.serialize
 	 * CouchDatabaseReader interprets data returned from the service and applies attributes to target database. 
 	 * @author toddanderson
 	 */
-	public class CouchDatabaseReader implements ICouchDatabaseReader
+	public class CouchDatabaseReader extends CouchResponseReader implements ICouchDatabaseReader
 	{
 		/**
 		 * Constructor.
 		 */
 		public function CouchDatabaseReader() {}
-		
-		/**
-		 * Returns flag of result related to an error. 
-		 * @param result Object
-		 * @return Boolean
-		 */
-		public function isResultAnError( result:Object ):Boolean
-		{
-			return result["error"] != null;
-		}
 		
 		/**
 		 * Updates the target database based on result. 

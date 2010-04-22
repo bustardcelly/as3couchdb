@@ -42,6 +42,10 @@ package com.custardbelly.as3couchdb.core
 	 * Dispatched upon successful deletion of database in CouchDB. 
 	 */
 	[Event(name="delete", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
+	/**
+	 * Dispatched upon fault from create of request. 
+	 */
+	[Event(name="fault", type="com.custardbelly.as3couchdb.event.CouchEvent")]
 	
 	/**
 	 * <p>CouchDatabase is a base model representing an instance of a Couch Database. To effectively use a CouchDatabase and its methods,

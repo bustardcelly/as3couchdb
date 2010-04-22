@@ -66,8 +66,7 @@ is handed to the ServiceMediator in order to establish the proper handling of re
 The main purpose of the RequestType is to handle multiple runtimes and there URLRequest restrictions.
 The Flash Player for AIR supports PUT and DELETE requests, but such requests are not available in the web-based
 Flash Player. As such, HTTPCouchRequest is available in as3couchdb and uses the as3httpclient library to make the
-requests over a socket. Other implementation are ExInCouchRequest which uses ExternalInterface, and CouchRequest 
-which makes requests without a proxy.
+requests over a socket. Other implementations are ExInCouchRequest which uses ExternalInterface.
 
     [RequestType(name="com.custardbelly.as3couchdb.service.HTTPCouchRequest")]
 

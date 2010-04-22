@@ -46,6 +46,10 @@ package com.custardbelly.as3couchdb.core
 	 * Dispatched upon successful deletion of document in CouchDB. 
 	 */
 	[Event(name="delete", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
+	/**
+	 * Dispatched upon fault from request. 
+	 */
+	[Event(name="fault", type="com.custardbelly.as3couchdb.event.CouchEvent")]
 	
 	/**
 	 * <p>CouchDocument is a base model representing an instance of a document within a databse of CouchDB. To effectively use a CouchDocument and its methods,

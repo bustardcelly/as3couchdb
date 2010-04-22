@@ -43,6 +43,7 @@ package com.custardbelly.as3couchdb.responder
 	{
 		protected var _document:CouchDocument;
 		protected var _responder:ICouchServiceResponder;
+		protected var _responseHeaders:Array; /* URLRequestHeader[] */
 		/**
 		 * @private
 		 * 
@@ -111,6 +112,19 @@ package com.custardbelly.as3couchdb.responder
 		public function set status(value:int):void
 		{
 			_status = value;
+		}
+		
+		/**
+		 * Returns the HTTP response headers recieved from during the request. 
+		 * @return Array
+		 */
+		public function get responseHeaders():Array /* URLRequestHeader[] */
+		{
+			return _responseHeaders;
+		}
+		public function set responseHeaders( value:Array /* URLRequestHeader[] */ ):void
+		{
+			_responseHeaders = value;
 		}
 	}
 }

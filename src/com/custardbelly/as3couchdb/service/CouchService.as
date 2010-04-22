@@ -29,20 +29,13 @@ package com.custardbelly.as3couchdb.service
 	import com.custardbelly.as3couchdb.as3couchdb_internal;
 	import com.custardbelly.as3couchdb.command.CouchRequestCommand;
 	import com.custardbelly.as3couchdb.command.IRequestCommand;
-	import com.custardbelly.as3couchdb.core.CouchServiceResult;
 	import com.custardbelly.as3couchdb.core.CouchSession;
 	import com.custardbelly.as3couchdb.core.CouchUser;
 	import com.custardbelly.as3couchdb.enum.CouchRequestMethod;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 	
 	import flash.errors.IllegalOperationError;
-	import flash.events.Event;
-	import flash.events.HTTPStatusEvent;
-	import flash.events.IOErrorEvent;
-	import flash.events.SecurityErrorEvent;
-	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	import flash.net.URLRequestHeader;
 
 	/**
 	 * CouchService is a base service class for communicating with a CouchDB instance. 
@@ -66,8 +59,8 @@ package com.custardbelly.as3couchdb.service
 		public function CouchService( baseUrl:String, request:ICouchRequest = null )
 		{
 			_baseUrl = baseUrl;
-			// If no custom request supplied, default to CouchRequest.
-			_request = request || new CouchRequest();
+			// If no custom request supplied, default to HTTPCouchRequest.
+			_request = request || new HTTPCouchRequest();
 		}
 		
 		/**

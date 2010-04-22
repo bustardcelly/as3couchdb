@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="as3couchdb" basedir="." default="lib">
+<project name="as3couchdb" basedir="." default="build-project">
 	
 	<!-- as3couchdb library requires the following libraries in order to be built properly: 	-->
 	<!-- [as3corelib] can be found at: http://code.google.com/p/as3corelib/ 					-->
@@ -20,14 +20,146 @@
 	
 	<!-- Property file. -->
 	<property file="build.properties" />
+	<!-- Generated file names for ease on conditionals. -->
+	<property name="standalone.swc" value="${standalone.bin.dir}/${library.name}.swc" />
+	<property name="external.swc" value="${external.bin.dir}/${external.name}.swc" />
 	
-	<!-- Clean previously build library based on version. -->
-	<target name="clean-lib" description="Cleans any previously build library related to projectname-version">
-		<echo>[CLEAN] Cleaning ${bin.dir}/${library.name}.swc</echo>
-		<delete file="${bin.dir}}/${library.name}}" />
-		<echo>[CLEAN] Successfully cleaned ${bin.dir}/${library.name}.swc</echo>
+	<!-- Clean previously buil standalone library based on version. -->
+	<target name="clean" description="Cleans any previously build library related to projectname-version">
+		<echo>[CLEAN] Cleaning ${lib.bin.dir}/${lib.name}.swc</echo>
+		<delete file="${lib.bin.dir}/${lib.name}.swc" />
+		<echo>[CLEAN] Successfully cleaned ${lib.bin.dir}/${lib.name}.swc</echo>
 	</target>
 	
+	<!-- Clean previously built standalone optimized SWF. -->
+	<target name="clean-optimize" description="Cleans any previously generated optimized standalone library">
+		<echo>[CLEAN] Cleaning ${lib.bin.dir}/{lib.name}.swf</echo>
+		<delete file="${lib.bin.dir}/${lib.name}.swf" />
+		<echo>[CLEAN] Succesfully cleaned ${lib.bin.dir}/${lib.name}.swf</echo>
+	</target>
+	
+	<!-- Unpacks built standalone library SWC in order to optimize. -->
+	<target name="unpack-lib" description="Unpacks the pre-packaged library SWC.">
+		<!-- See if the SWC already exists. If so, no need to rebuild it. If not, we need to generate one. -->
+		<condition property="standalone.available">
+			<available file="${lib.swc}" />
+		</condition>
+		<!-- Unless not exists, this is called. -->
+		<antcall target="build-swc-for-optimize">
+			<param name="lib.name" value="${lib.name}" />
+			<param name="lib.bin.dir" value="${lib.bin.dir}" />
+			<param name="config" value="${config}" />
+		</antcall>
+		<!-- Move on to optimizing. -->
+		<echo>[UNZIP] Unpackaging ${lib.name}.swc.</echo>
+		<unzip src="${lib.bin.dir}/${lib.name}.swc" dest="${optimize.temp.dir}" />
+		<echo>[COPY] Moving unpacked library SWF to ${standalone.bin.dir}</echo>
+		<copy file="${optimize.temp.dir}/library.swf" tofile="${lib.bin.dir}/${lib.name}.swf" />
+		<echo>[CLEAN] Removing temporary directory for unpacking ${library.name}.swc.</echo>
+		<delete dir="${optimize.temp.dir}" includeemptydirs="true" />
+		<echo>[CLEAN] Successful unpackage of ${lib.name}.swc</echo>
+	</target>
+	
+	<!-- Conditional task entered from optimize/unpack task if library SWC not previously gernerated. -->
+	<target name="build-swc-for-optimize" unless="standalone.available" description="Generate the library SWC of not already present.">
+		<echo>[INFO] SWC not available for optimization. Generating ${lib.name}.swc...</echo>
+		<antcall target="lib">
+			<param name="lib.name" value="${lib.name}" />
+			<param name="lib.bin.dir" value="${lib.bin.dir}" />
+			<param name="config" value="${config}" />
+		</antcall>
+	</target>
+	
+	<!-- Parameterized target call for generating either standalone or external SWC. 	-->
+	<!-- The following parameters need to be passed when invoking this target: 			-->
+	<!-- [config] 		- The custom configuration file to compile against.				-->
+	<!-- [lib.name] 	- The name of the generated library SWC.						-->
+	<!-- [lib.bin.dir]	- The output directory for the generated SWC.					-->
+	<target name="lib" description="Generates the library SWC based on parameters.">
+		<!-- Clean first -->
+		<antcall target="clean">
+			<param name="lib.name" value="${lib.name}" />
+			<param name="lib.bin.dir" value="${lib.bin.dir}" />
+		</antcall>
+		<!-- Compile against config -->
+		<echo>[EXEC] Compiling ${lib.name}.swc</echo>
+		<exec executable="${compc.loc}" dir="${basedir}">
+			<arg line="+playerglobal.lib.dir=${playerglobal.lib.dir}" />
+			<arg line="+lib.dir=${lib.dir}" />
+			<arg line="+as3corelib.net.src=${as3corelib.net.src}" />
+			<arg line="+as3corelib.json.src=${as3corelib.json.src}" />
+			<arg line="+as3corelib.utils.StringUtil=${as3corelib.utils.StringUtil}" />
+			<arg line="+lib.bin.dir=${lib.bin.dir}" />
+			<arg line="+lib.name=${lib.name}" />
+			<arg line="+src.dir=${src.dir}" />
+			<arg line="-load-config+=${config}" />
+		</exec>
+		<echo>[EXEC] Finished compiling ${lib.name}.swc. ${lib.name}.swc can be found in ${lib.bin.dir}/.</echo>
+	</target>
+	
+	<!-- Parameterized target call for generating either standalone or external optimized SWF.	-->
+	<!-- The following parameters need to be passed when invoking this target: 					-->
+	<!-- [config] 		- The custom configuration file to compile against.						-->
+	<!-- [lib.name] 	- The name of the generated library SWC.								-->
+	<!-- [lib.bin.dir]	- The output directory for the generated SWC.							-->
+	<!-- [lib.swc]		- The generated SWC file location. If not avialable, will create.		-->
+	<target name="optimize" description="Generates an optimized SWF file from a library SWC.">
+		<echo>[EXEC] Optimizing ${lib.name}</echo>
+		<antcall target="clean-optimize">
+			<param name="lib.name" value="${lib.name}" />
+			<param name="lib.bin.dir" value="${lib.bin.dir}" />
+		</antcall>
+		<antcall target="unpack-lib">
+			<param name="lib.name" value="${lib.name}" />
+			<param name="lib.bin.dir" value="${lib.bin.dir}" />
+			<param name="lib.swc" value="${lib.swc}" />
+			<param name="config" value="${config}" />
+		</antcall>
+		<exec executable="${optimizer.loc}">
+			<arg line="-input ${lib.bin.dir}/${lib.name}.swf" />
+			<arg line="-output ${lib.bin.dir}/${lib.name}.swf" />
+		</exec>
+		<echo>[EXEC] Finished optimizing ${lib.name}. The optimized SWF can be found at ${lib.bin.dir}/${lib.name}.swf</echo>
+	</target>
+	
+	<!-- Build the standalone library swc. DEFAULT -->
+	<target name="standalone" description="Generates the standalone library SWC.">
+		<antcall target="lib">
+			<param name="lib.name" value="${library.name}" />
+			<param name="lib.bin.dir" value="${standalone.bin.dir}" />
+			<param name="config" value="as3couchdb-standalone-config.xml" />
+		</antcall>
+	</target>
+	
+	<!-- Build the external library swc. -->
+	<target name="external" description="Generates the external library SWC.">
+		<antcall target="lib">
+			<param name="lib.name" value="${external.name}" />
+			<param name="lib.bin.dir" value="${external.bin.dir}" />
+			<param name="config" value="as3couchdb-external-config.xml" />
+		</antcall>
+	</target>
+	
+	<!-- Build the optimized standalone swf based on the output library SWC. -->
+	<target name="optimize-standalone" description="Optimizes the standalone library SWC into a generated SWF file.">
+		<antcall target="optimize">
+			<param name="lib.name" value="${library.name}" />
+			<param name="lib.bin.dir" value="${standalone.bin.dir}" />
+			<param name="lib.swc" value="${standalone.swc}" />
+			<param name="config" value="as3couchdb-standalone-config.xml" />
+		</antcall>
+	</target>
+	
+	<!-- Build the optimized external swf based on the output library SWC. -->
+	<target name="optimize-external" description="Optimizes the external library SWC into a generated SWF file.">
+		<antcall target="optimize">
+			<param name="lib.name" value="${external.name}" />
+			<param name="lib.bin.dir" value="${external.bin.dir}" />
+			<param name="lib.swc" value="${external.swc}" />
+			<param name="config" value="as3couchdb-external-config.xml" />
+		</antcall>
+	</target>
+		
 	<!-- Clean documents directory. -->
 	<target name="clean-doc" description="Cleans the document directory.">
 		<echo>[CLEAN] Cleaning ${doc.dir}</echo>
@@ -35,45 +167,6 @@
 			<fileset dir="${doc.dir}" includes="**/*" />
 		</delete>
 		<echo>[CLEAN] Successfully cleaned ${doc.dir}</echo>
-	</target>
-	
-	<!-- Unpacks built library SWC in order to optimize. -->
-	<target name="unpack-lib" depends="lib" description="Unpacks the pre-packaged library SWC.">
-		<echo>[UNZIP] Unpackaging ${library.name}.swc.</echo>
-		<unzip src="${bin.dir}/${library.name}.swc" dest="${optimize.temp.dir}" />
-		<echo>[COPY] Moving unpacked library SWF to ${bin.dir}</echo>
-		<copy file="${optimize.temp.dir}/library.swf" tofile="${bin.dir}/${library.name}.swf" />
-		<echo>[CLEAN] Removing temporary directory for unpacking ${library.name}.swc.</echo>
-		<delete dir="${optimize.temp.dir}" includeemptydirs="true" />
-		<echo>[CLEAN] Successful unpackage of ${library.name}.swc</echo>
-	</target>
-	
-	<!-- Build the library swc. DEFAULT -->
-	<target name="lib" depends="clean-lib" description="Generates the library SWC.">
-		<echo>[EXEC] Compiling ${library.name}.swc</echo>
-		<exec executable="${compc.loc}" dir="${basedir}">
-			<!--<arg line="-load-config+=${basedir}/as3couchdb-config.xml" />-->
-			<arg line="-external-library-path ${flexsdk.lib.dir}" />
-			<arg line="-external-library-path ${playerglobal.lib.dir}" />
-			<arg line="-library-path+=${lib.dir}" />
-			<arg line="-source-path ${src.dir}" />
-			<arg line="-include-sources ${src.dir}" />
-			<arg line="-include-sources ${as3corelib.net.src}" />
-			<arg line="-include-sources ${as3corelib.json.src}" />
-			<arg line="-include-sources ${as3corelib.utils.StringUtil}" />
-			<arg line="-output '${bin.dir}/${library.name}.swc'" />
-		</exec>
-		<echo>[EXEC] Finished compiling ${library.name}.swc. ${library.name}.swc can be found in ${bin.dir}/.</echo>
-	</target>
-	
-	<!-- Build the optimized swf based on the output library SWC. -->
-	<target name="optimize" depends="unpack-lib" description="Optimizes the library SWC into a generated SWF file.">
-		<echo>[EXEC] Optimizing ${library.name}</echo>
-		<exec executable="${optimizer.loc}">
-			<arg line="-input ${bin.dir}/${library.name}.swf" />
-			<arg line="-output ${bin.dir}}/${library.name}.swf" />
-		</exec>
-		<echo>[EXEC] Finished optimizing ${library.name}. The optimized SWF can be found at ${bin.dir}/${library.name}.swf</echo>
 	</target>
 	
 	<!-- Create the ASDocs for the library project. -->
@@ -85,6 +178,13 @@
 			<arg line="-output ${doc.dir}" />
 			<arg line="-window-title 'AS3CouchDB Library - ${library.name}' "/>
 		</exec>
+	</target>
+	
+	<!-- DEFAULT. Runs all tasks to build standard and external SWCs and optimized SWFs as well as project docs. -->
+	<target name="build-project" description="Runs all tasks to generate SWC, SWF and doc files.">
+		<antcall target="optimize-standalone" />
+		<antcall target="optimize-external" />
+		<antcall target="doc" />
 	</target>
 	
 </project>

@@ -4,7 +4,7 @@ package com.custardbelly.couchdb.example.model
 	
 	[DocumentService(url="http://127.0.0.1:5984", name="contacts")]
 	[ServiceMediator(name="com.custardbelly.as3couchdb.mediator.CouchSessionActionMediator")]
-	[RequestType(name="com.custardbelly.as3couchdb.service.HTTPCouchRequest")]
+	[RequestType(name="com.custardbelly.as3couchdb.service.HTTPSessionRequest")]
 	
 	/**
 	 * ContactSession is an extension of CouchSession to properly annotate the metadata associated with a session within CouchDB. 

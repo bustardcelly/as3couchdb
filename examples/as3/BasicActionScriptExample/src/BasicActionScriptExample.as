@@ -7,6 +7,8 @@ package
 	import com.bit101.components.Text;
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
+	import com.custardbelly.as3couchdb.core.CouchSession;
+	import com.custardbelly.as3couchdb.core.CouchUser;
 	import com.custardbelly.as3couchdb.enum.CouchActionType;
 	import com.custardbelly.as3couchdb.event.CouchEvent;
 	import com.custardbelly.as3couchdb.mediator.CouchDatabaseActionMediator;
@@ -15,6 +17,7 @@ package
 	import com.custardbelly.as3couchdb.service.HTTPCouchRequest;
 	import com.custardbelly.couchdb.example.model.ContactDatabase;
 	import com.custardbelly.couchdb.example.model.ContactDocument;
+	import com.custardbelly.couchdb.example.model.ContactSession;
 	
 	import flash.display.Shape;
 	import flash.display.Sprite;
@@ -41,6 +44,7 @@ package
 		private var _database:ContactDatabase;
 		private var _currentState:String = BasicActionScriptExample.STATE_NORMAL;
 		
+		private static const STATE_LOADING:String = "loadingState";
 		private static const STATE_NORMAL:String = "normalState";
 		private static const STATE_DB_LOADED:String = "dbLoadedState";
 		

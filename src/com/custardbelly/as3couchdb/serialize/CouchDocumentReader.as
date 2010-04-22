@@ -39,7 +39,7 @@ package com.custardbelly.as3couchdb.serialize
 	 * CouchDocumentReader interprets result returned from service and applies any related attributes to target document. 
 	 * @author toddanderson
 	 */
-	public class CouchDocumentReader implements ICouchDocumentReader
+	public class CouchDocumentReader extends CouchResponseReader implements ICouchDocumentReader
 	{
 		/**
 		 * Map of reserved properties on a document residing in a CouchDB instance. 
@@ -80,16 +80,6 @@ package com.custardbelly.as3couchdb.serialize
 				attachments.push( attachment );
 			}
 			return attachments;
-		}
-		
-		/**
-		 * Returns flag of result related to an error. 
-		 * @param result Object
-		 * @return Boolean
-		 */
-		public function isResultAnError( result:Object ):Boolean
-		{
-			return result["error"] != null;
 		}
 		
 		/**

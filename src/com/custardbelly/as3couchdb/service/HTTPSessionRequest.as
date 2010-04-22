@@ -28,6 +28,7 @@ package com.custardbelly.as3couchdb.service
 {
 	import com.adobe.net.URI;
 	import com.custardbelly.as3couchdb.event.CouchEvent;
+	import com.custardbelly.as3couchdb.net.CouchSessionResponse;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 	
 	import flash.errors.IllegalOperationError;
@@ -61,7 +62,9 @@ package com.custardbelly.as3couchdb.service
 			{
 				// Grab cookie from header and notify client.
 				var cookie:String = response.header.getValue( "Set-Cookie" );
-				respondToResult( CouchEvent.RESULT, cookie );
+				var resultObj:Object = {};
+				resultObj[evt.response.message] = true;
+				respondToResult( CouchEvent.RESULT, new CouchSessionResponse( cookie, resultObj ) );
 			}
 			else
 			{

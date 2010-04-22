@@ -32,7 +32,15 @@ package com.custardbelly.as3couchdb.core
 	import com.custardbelly.as3couchdb.mediator.IServiceMediator;
 	
 	import flash.net.URLRequestHeader;
-
+	
+	/**
+	 * Dispatched upon successful create of a session for user within CouchDB instance. 
+	 */
+	[Event(name="sessionCreate", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
+	/**
+	 * Dispatched upon fault from create of session. 
+	 */
+	[Event(name="fault", type="com.custardbelly.as3couchdb.event.CouchEvent")]
 	/**
 	 * CouchSession is a model for data related to a cookie authentication for a session based on a time limit. 
 	 * @author toddanderson

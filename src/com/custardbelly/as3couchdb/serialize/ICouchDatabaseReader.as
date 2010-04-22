@@ -32,14 +32,8 @@ package com.custardbelly.as3couchdb.serialize
 	 * ICouchDatabaseReader interprets service result and applied attributes to database objects. 
 	 * @author toddanderson
 	 */
-	public interface ICouchDatabaseReader
+	public interface ICouchDatabaseReader extends ICouchResponseReader
 	{
-		/**
-		 * Returns flag if successful result is interpreted as an error from the service. 
-		 * @param result Object
-		 * @return Boolean
-		 */
-		function isResultAnError( result:Object ):Boolean
 		/**
 		 * Applies attributes to specified CouchDatabase based on interpreted result. 
 		 * @param database CouchDatabase

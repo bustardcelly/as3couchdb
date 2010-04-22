@@ -32,15 +32,8 @@ package com.custardbelly.as3couchdb.serialize
 	 * ICouchDocumentReader interprets service results and applies attributes to targeted documents. 
 	 * @author toddanderson
 	 */
-	public interface ICouchDocumentReader
-	{
-		/**
-		 * Returns flag if successful result is interpreted as an error from the service. 
-		 * @param result Object
-		 * @return Boolean
-		 */
-		function isResultAnError( result:Object ):Boolean
-			
+	public interface ICouchDocumentReader extends ICouchResponseReader
+	{		
 		/**
 		 * Creates a new CouchDocument based on the supplied document class type and the service result. 
 		 * @param documentClass String
