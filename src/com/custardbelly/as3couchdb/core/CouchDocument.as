@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocument.as</p>
- * <p>Version: 0.4.1</p>
+ * <p>Version: 0.5</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,6 +59,7 @@ package com.custardbelly.as3couchdb.core
 	 * <example>
 	 * [DocumentService(url="http://127.0.0.1:5984", name="contacts")]
 	 * [ServiceMediator(name="com.custardbelly.as3couchdb.mediator.CouchDocumentActionMediator")]
+	 * [RequestType(name="com.custardbelly.as3couchdb.service.HTTPCouchRequest")]
 	 * public class ContactDocument extends CouchDocument
 	 * {
 	 * 	...

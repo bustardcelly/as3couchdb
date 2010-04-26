@@ -1,6 +1,6 @@
 # About
 
-The as3couchdb project is generates library SWC and optimized SWF files into two output bins:
+The as3couchdb project generates library SWC and optimized SWF files into two output bins:
 
 ## standalone
 
@@ -24,7 +24,7 @@ The as3couchdb library depends on the following libraries in order to compile:
 
 ## as3corelib
 
-The as3couchdb library requires the as3corelib project (found at [http://code.google.com/p/as3corelib/]http://code.google.com/p/as3corelib/)).
+The as3couchdb library requires the as3corelib project (found at [http://code.google.com/p/as3corelib/](http://code.google.com/p/as3corelib/)).
 The classes from the as3corelib project that as3couchdb utilizes is SHA1 for generating unique ids
 on the client side, and JSON for serializing objects for CouchDB service communication.
 

@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabaseActionMediator.as</p>
- * <p>Version: 0.4.1</p>
+ * <p>Version: 0.5</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -164,12 +164,13 @@ package com.custardbelly.as3couchdb.mediator
 		}
 		
 		/**
-		 * Invokes the ICouchDatabaseService to retrieve all documents from target CouchDatabase and resolve each return as a type of CouchDocument class. 
-		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
+		 * Invokes action mediator to return all documents related to database.
+		 * Documents are returned as generic objects as _all_docs returns a list of all documents from a database, including _design docs.
+		 * To return resolved documents to a model, see #getDocumentsFromView.
 		 */
-		public function doGetAllDocuments( documentClass:String ):void
+		public function doGetAllDocuments():void
 		{
-			var serviceResponder:ReadAllDocumentsResponder = new ReadAllDocumentsResponder( documentClass, _serviceResponder );
+			var serviceResponder:ReadAllDocumentsResponder = new ReadAllDocumentsResponder( _serviceResponder );
 			_service.getAllDocuments( _database.db_name, true, serviceResponder ).execute();
 		}
 		

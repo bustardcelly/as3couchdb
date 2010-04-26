@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ReadDocumentsFromViewResponder.as</p>
- * <p>Version: 0.4.1</p>
+ * <p>Version: 0.5</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,8 @@ package com.custardbelly.as3couchdb.responder
 	 */
 	public class ReadDocumentsFromViewResponder extends ReadAllDocumentsResponder
 	{
+		protected var _documentClass:String;
+		
 		/**
 		 * Constructor. 
 		 * @param documentClass String The fully-qualified classname of the document to resolve results to.
@@ -44,7 +46,8 @@ package com.custardbelly.as3couchdb.responder
 		 */
 		public function ReadDocumentsFromViewResponder(documentClass:String, responder:ICouchServiceResponder)
 		{
-			super(documentClass, responder);
+			super(responder);
+			_documentClass = documentClass;
 		}
 		
 		/**

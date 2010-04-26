@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabase.as</p>
- * <p>Version: 0.4.1</p>
+ * <p>Version: 0.5</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,10 @@ package com.custardbelly.as3couchdb.core
 	 */
 	[Event(name="read", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
 	/**
+	 * Dispatched upon successful read in of all documents from CouchDB. Documents are returned as generic objects from _all_docs, or cast as model instances from view request. 
+	 */
+	[Event(name="readDocuments", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
+	/**
 	 * Dispatched upon successful deletion of database in CouchDB. 
 	 */
 	[Event(name="delete", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
@@ -55,6 +59,7 @@ package com.custardbelly.as3couchdb.core
 	 * <example>
 	 * [DocumentService(url="http://127.0.0.1:5984", name="contacts")]
 	 * [ServiceMediator(name="com.custardbelly.as3couchdb.mediator.CouchDatabaseActionMediator")]
+	 * [RequestType(name="com.custardbelly.as3couchdb.service.HTTPCouchRequest")]
 	 * public class ContactsDatabase extends CouchDatabase
 	 * {
 	 * 	...
@@ -142,12 +147,13 @@ package com.custardbelly.as3couchdb.core
 		}
 		
 		/**
-		 * Invokes action mediator to return all documents related to database resolved as the supplied class type. 
-		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specified type of model.
+		 * Invokes action mediator to return all documents related to database.
+		 * Documents are returned as generic objects as _all_docs returns a list of all documents from a database, including _design docs.
+		 * To return resolved documents to a model, see #getDocumentsFromView.
 		 */
-		public function getAllDocuments( documentClass:String ):void
+		public function getAllDocuments():void
 		{
-			_actionMediator.doGetAllDocuments( documentClass );
+			_actionMediator.doGetAllDocuments();
 		}
 		
 		/**

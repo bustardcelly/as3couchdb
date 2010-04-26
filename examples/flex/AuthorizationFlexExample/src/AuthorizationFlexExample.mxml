@@ -31,6 +31,7 @@
 			import com.custardbelly.couchdb.example.model.ContactDatabase;
 			import com.custardbelly.couchdb.example.model.ContactDocument;
 			import com.custardbelly.couchdb.example.model.ContactSession;
+			import com.custardbelly.couchdb.example.serialize.ContactDocumentReader;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -41,6 +42,7 @@
 			
 			private var _database:ContactDatabase;
 			private var _document:ContactDocument;
+			private var _contactReader:ContactDocumentReader;
 			
 			[Bindable]
 			public var contactsCollection:ArrayCollection;
@@ -86,6 +88,8 @@
 			{
 				_login.showMessage( "Complete." );
 				PopUpManager.removePopUp( _login );
+				
+				_contactReader = new ContactDocumentReader();
 			}
 			
 			private function loadDatabase():void
@@ -101,7 +105,7 @@
 			private function loadAllContacts():void
 			{
 				// Loads all documents related to database.
-				_database.getAllDocuments( "com.custardbelly.couchdb.example.model.ContactDocument" );
+				_database.getAllDocuments();
 			}
 			
 			private function createDocument( firstName:String, lastName:String, email:String ):void
@@ -114,6 +118,23 @@
 				_document.addEventListener( CouchActionType.CREATE, handleDocumentCreate, false, 0, true );
 				_document.addEventListener( CouchEvent.FAULT, handleDocumentFault, false, 0, true );
 				_document.create();
+			}
+			 
+			// Resolves a generic object returned from _all_docs to a ContactDocument instance. 
+			protected function resolveToContact( value:Object ):ContactDocument
+			{
+				var contact:ContactDocument;
+				try
+				{
+					// Try and fill document from result.
+					// If faulted, document returned is not related to a ContactDocument.
+					contact = _contactReader.createDocumentFromResult( getQualifiedClassName( ContactDocument ), value ) as ContactDocument;
+				}
+				catch( e:Error )
+				{
+					// Could not resolve generic object returned from _all_docs as a ContactDocument.
+				}
+				return contact;
 			}
 			
 			// Event handler for submit of new contact
@@ -140,7 +161,16 @@
 			{
 				var result:CouchServiceResult = evt.data as CouchServiceResult;
 				var list:Array = result.data as Array;
-				contactsCollection = new ArrayCollection( list );
+				
+				var i:int;
+				var contact:ContactDocument;
+				contactsCollection = new ArrayCollection();
+				for( i = 0; i < list.length; i++ )
+				{
+					contact = resolveToContact( list[i] );
+					if( contact )
+						contactsCollection.addItem( contact );
+				}
 			}
 			
 			// Event handler for creation of document.

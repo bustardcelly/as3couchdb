@@ -21,7 +21,7 @@ The following libraries are required to compile the as3couchdb library project:
 
 ## as3corelib
 
-The as3couchdb library requires the as3corelib project (found at [http://code.google.com/p/as3corelib/]http://code.google.com/p/as3corelib/)).
+The as3couchdb library requires the as3corelib project (found at [http://code.google.com/p/as3corelib/](http://code.google.com/p/as3corelib/)).
 The classes from the as3corelib project that as3couchdb utilizes is SHA1 for generating unique ids
 on the client side, and JSON for serializing objects for CouchDB service communication.
 

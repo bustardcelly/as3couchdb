@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ReadAllDocumentsResponder.as</p>
- * <p>Version: 0.4.1</p>
+ * <p>Version: 0.5</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,6 @@ package com.custardbelly.as3couchdb.responder
 	 */
 	public class ReadAllDocumentsResponder implements ICouchServiceResponder
 	{
-		protected var _documentClass:String;
 		protected var _responder:ICouchServiceResponder;
 		protected var _status:int;
 		
@@ -48,12 +47,10 @@ package com.custardbelly.as3couchdb.responder
 		
 		/**
 		 * Constructor. 
-		 * @param documentClass String The fully-qualified class name of the document instance to resolve results to.
 		 * @param responder ICouchServiceResponder
 		 */
-		public function ReadAllDocumentsResponder( documentClass:String, responder:ICouchServiceResponder )
+		public function ReadAllDocumentsResponder( responder:ICouchServiceResponder )
 		{
-			_documentClass = documentClass;
 			_responder = responder;
 			
 			_databaseReader = new CouchDatabaseReader();
@@ -97,9 +94,11 @@ package com.custardbelly.as3couchdb.responder
 				for( i = 0; i < documents.length; i++ )
 				{
 					// Documents are returned from /_all_docs as {doc:Object, id:String, key:String, value:Object}
-					// Supply the doc property to the reader.
-					document = _documentReader.createDocumentFromResult( _documentClass, documents[i].doc );
-					documentList.push( document );
+					// Return list of generic objects. Client should know how to handle documents returned.
+					// Because _all_docs returns all documents, including _design docs, do not enforce casting to 
+					//	document type. When requesting known document types that can be resolve to a model,
+					//	use CouchDatabase:getDocumentsFromView.
+					documentList.push( documents[i].doc );
 				}
 				
 				if( _responder ) _responder.handleResult( new CouchServiceResult( CouchActionType.READ_DOCUMENTS, documentList ) );

@@ -33,7 +33,7 @@
 	
 	<!-- Clean previously built standalone optimized SWF. -->
 	<target name="clean-optimize" description="Cleans any previously generated optimized standalone library">
-		<echo>[CLEAN] Cleaning ${lib.bin.dir}/{lib.name}.swf</echo>
+		<echo>[CLEAN] Cleaning ${lib.bin.dir}/${lib.name}.swf</echo>
 		<delete file="${lib.bin.dir}/${lib.name}.swf" />
 		<echo>[CLEAN] Succesfully cleaned ${lib.bin.dir}/${lib.name}.swf</echo>
 	</target>
@@ -127,7 +127,7 @@
 		<antcall target="lib">
 			<param name="lib.name" value="${library.name}" />
 			<param name="lib.bin.dir" value="${standalone.bin.dir}" />
-			<param name="config" value="as3couchdb-standalone-config.xml" />
+			<param name="config" value="${standalone.config}" />
 		</antcall>
 	</target>
 	
@@ -136,7 +136,7 @@
 		<antcall target="lib">
 			<param name="lib.name" value="${external.name}" />
 			<param name="lib.bin.dir" value="${external.bin.dir}" />
-			<param name="config" value="as3couchdb-external-config.xml" />
+			<param name="config" value="${external.config}" />
 		</antcall>
 	</target>
 	
@@ -146,7 +146,7 @@
 			<param name="lib.name" value="${library.name}" />
 			<param name="lib.bin.dir" value="${standalone.bin.dir}" />
 			<param name="lib.swc" value="${standalone.swc}" />
-			<param name="config" value="as3couchdb-standalone-config.xml" />
+			<param name="config" value="${standalone.config}" />
 		</antcall>
 	</target>
 	
@@ -156,7 +156,7 @@
 			<param name="lib.name" value="${external.name}" />
 			<param name="lib.bin.dir" value="${external.bin.dir}" />
 			<param name="lib.swc" value="${external.swc}" />
-			<param name="config" value="as3couchdb-external-config.xml" />
+			<param name="config" value="${external.config}" />
 		</antcall>
 	</target>
 		
@@ -182,7 +182,9 @@
 	
 	<!-- DEFAULT. Runs all tasks to build standard and external SWCs and optimized SWFs as well as project docs. -->
 	<target name="build-project" description="Runs all tasks to generate SWC, SWF and doc files.">
+		<antcall target="standalone" />
 		<antcall target="optimize-standalone" />
+		<antcall target="external" />
 		<antcall target="optimize-external" />
 		<antcall target="doc" />
 	</target>

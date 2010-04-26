@@ -7,10 +7,12 @@ package com.custardbelly.couchdb.example.view
 	import com.custardbelly.couchdb.example.event.ContactEvent;
 	import com.custardbelly.couchdb.example.model.ContactDatabase;
 	import com.custardbelly.couchdb.example.model.ContactDocument;
+	import com.custardbelly.couchdb.example.serialize.ContactDocumentReader;
 	
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.utils.getQualifiedClassName;
 	
 	import mx.binding.utils.BindingUtils;
 	import mx.collections.ArrayCollection;
@@ -37,6 +39,7 @@ package com.custardbelly.couchdb.example.view
 		public var addContactButton:Button;
 		
 		protected var database:CouchDatabase;
+		protected var contactReader:ContactDocumentReader;
 		
 		protected var contactPanel:ContactEditPanel;
 		protected var deletePanel:ContactDeletePanel;
@@ -52,7 +55,10 @@ package com.custardbelly.couchdb.example.view
 		public function ContactsForm() 
 		{
 			super();
+			
 			contacts = new ArrayCollection();
+			
+			contactReader = new ContactDocumentReader();
 			
 			var availableState:State = new State();
 			availableState.name = ContactsForm.AVAILABLE_STATE;
@@ -130,7 +136,7 @@ package com.custardbelly.couchdb.example.view
 		{
 			database.addEventListener( CouchActionType.READ_DOCUMENTS, handleReadAllDocuments );
 			// Grab all the documents.
-			database.getAllDocuments( "com.custardbelly.couchdb.example.model.ContactDocument" );
+			database.getAllDocuments();
 			// Access by design view.
 			// For example, a this design doc resides in the contacts DB:
 //			{
@@ -147,6 +153,29 @@ package com.custardbelly.couchdb.example.view
 //			The following request will return a list of contacts only with the lastName property equal to Anderson by hitting this url:
 //			http://127.0.0.1:5984/contacts/_design/contacts/_view/lastNames?key="Anderson"
 //			database.getDocumentsFromView( "com.custardbelly.couchdb.model.ContactDocument", "contacts", "lastNames", "Anderson" );
+		}
+		
+		/**
+		 * @private
+		 * 
+		 * Resolves a generic object returned from _all_docs to a ContactDocument instance. 
+		 * @param value Object
+		 * @return ContactDocument
+		 */
+		protected function resolveToContact( value:Object ):ContactDocument
+		{
+			var contact:ContactDocument;
+			try
+			{
+				// Try and fill document from result.
+				// If faulted, document returned is not related to a ContactDocument.
+				contact = contactReader.createDocumentFromResult( getQualifiedClassName( ContactDocument ), value ) as ContactDocument;
+			}
+			catch( e:Error )
+			{
+				// Could not resolve generic object returned from _all_docs as a ContactDocument.
+			}
+			return contact;
 		}
 		
 		/**
@@ -281,12 +310,15 @@ package com.custardbelly.couchdb.example.view
 			var contact:ContactDocument;
 			while( --i > -1 )
 			{
-				contact = contactList[i] as ContactDocument;
-				contact.addEventListener( CouchActionType.CREATE, handleContactSaveResult, false, 0, true );
-				contact.addEventListener( CouchActionType.UPDATE, handleContactSaveResult, false, 0, true );
-				contact.addEventListener( CouchActionType.DELETE, handleContactDeleteResult, false, 0, true );
-				contact.addEventListener( CouchEvent.FAULT, handleContactFault, false, 0, true );
-				contacts.addItem( contact );
+				contact = resolveToContact( contactList[i] );
+				if( contact )
+				{
+					contact.addEventListener( CouchActionType.CREATE, handleContactSaveResult, false, 0, true );
+					contact.addEventListener( CouchActionType.UPDATE, handleContactSaveResult, false, 0, true );
+					contact.addEventListener( CouchActionType.DELETE, handleContactDeleteResult, false, 0, true );
+					contact.addEventListener( CouchEvent.FAULT, handleContactFault, false, 0, true );
+					contacts.addItem( contact );
+				}
 			}
 		}
 		

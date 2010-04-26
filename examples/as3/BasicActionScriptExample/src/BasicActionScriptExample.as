@@ -18,6 +18,7 @@ package
 	import com.custardbelly.couchdb.example.model.ContactDatabase;
 	import com.custardbelly.couchdb.example.model.ContactDocument;
 	import com.custardbelly.couchdb.example.model.ContactSession;
+	import com.custardbelly.couchdb.example.serialize.ContactDocumentReader;
 	
 	import flash.display.Shape;
 	import flash.display.Sprite;
@@ -42,6 +43,7 @@ package
 		private var _addContactButton:PushButton;
 		
 		private var _database:ContactDatabase;
+		private var _contactReader:ContactDocumentReader;
 		private var _currentState:String = BasicActionScriptExample.STATE_NORMAL;
 		
 		private static const STATE_LOADING:String = "loadingState";
@@ -63,6 +65,7 @@ package
 			stage.align = StageAlign.TOP_LEFT;
 			
 			createChildren();
+			_contactReader = new ContactDocumentReader();
 			setState( BasicActionScriptExample.STATE_NORMAL );
 		}
 		
@@ -141,6 +144,29 @@ package
 		/**
 		 * @private
 		 * 
+		 * Resolves a generic object returned from _all_docs to a ContactDocument instance. 
+		 * @param value Object
+		 * @return ContactDocument
+		 */
+		protected function resolveToContact( value:Object ):ContactDocument
+		{
+			var contact:ContactDocument;
+			try
+			{
+				// Try and fill document from result.
+				// If faulted, document returned is not related to a ContactDocument.
+				contact = _contactReader.createDocumentFromResult( getQualifiedClassName( ContactDocument ), value ) as ContactDocument;
+			}
+			catch( e:Error )
+			{
+				// Could not resolve generic object returned from _all_docs as a ContactDocument.
+			}
+			return contact;
+		}
+		
+		/**
+		 * @private
+		 * 
 		 * Event handler for request of load for database. 
 		 * @param evt Event
 		 */
@@ -161,7 +187,7 @@ package
 		 */
 		protected function handleLoadContacts( evt:MouseEvent ):void
 		{
-			_database.getAllDocuments("com.custardbelly.couchdb.example.model.ContactDocument");
+			_database.getAllDocuments();
 		}
 		
 		/**
@@ -218,8 +244,9 @@ package
 			var contact:ContactDocument;
 			for( i = 0; i < data.length; i++ )
 			{
-				contact = data[i] as ContactDocument;
-				items.push( "Name: " + contact.lastName + ", " + contact.firstName + ". Email: " + contact.email );
+				contact = resolveToContact( data[i] );
+				if( contact ) 
+					items.push( "Name: " + contact.lastName + ", " + contact.firstName + ". Email: " + contact.email );
 			}
 			_list.items = items;
 		}

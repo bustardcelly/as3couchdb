@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchDatabaseMediator.as</p>
- * <p>Version: 0.4.1</p>
+ * <p>Version: 0.5</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,10 +59,11 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		function doCompact( cleanup:Boolean ):void;
 		/**
-		 * Invokes service to request all documents and resolve each document as a type of supplied class. 
-		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
+		 * Invokes action mediator to return all documents related to database.
+		 * Documents are returned as generic objects as _all_docs returns a list of all documents from a database, including _design docs.
+		 * To return resolved documents to a model, see #getDocumentsFromView.
 		 */
-		function doGetAllDocuments( documentClass:String ):void;
+		function doGetAllDocuments():void;
 		/**
 		 * Invokes service to request documents based on design view map/reduce with optional key value filter. 
 		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
