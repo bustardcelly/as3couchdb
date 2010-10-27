@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabaseActionMediator.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.6</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ package com.custardbelly.as3couchdb.mediator
 	import com.custardbelly.as3couchdb.command.IRequestCommand;
 	import com.custardbelly.as3couchdb.core.CouchDatabase;
 	import com.custardbelly.as3couchdb.core.CouchModel;
+	import com.custardbelly.as3couchdb.core.CouchModelEntity;
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
 	import com.custardbelly.as3couchdb.enum.CouchActionType;
@@ -111,10 +112,10 @@ package com.custardbelly.as3couchdb.mediator
 		public function doCreateIfNotExist():void
 		{
 			// Create responder for creation operation with basic responder.
-			var readResponder:ICouchServiceResponder = new ReadDatabaseResponder( _database, CouchActionType.CREATE, _serviceResponder )
+			var readResponder:ICouchServiceResponder = new ReadDatabaseResponder( _database, CouchActionType.CREATE, _serviceResponder );
 			// Invoke service to create database.
-			var createRequestCommand:IRequestCommand = _service.createDatabase( _database.db_name );
-			var readRequestCommand:IRequestCommand = _service.readDatabase( _database.db_name, readResponder );
+			var createRequestCommand:IRequestCommand = _service.createDatabase( _database.databaseName );
+			var readRequestCommand:IRequestCommand = _service.readDatabase( _database.databaseName, readResponder );
 			createRequestCommand.nextCommand = readRequestCommand;
 			createRequestCommand.execute();
 		}
@@ -126,7 +127,7 @@ package com.custardbelly.as3couchdb.mediator
 		public function doRead( action:String = CouchActionType.READ ):void
 		{
 			var serviceResponder:ICouchServiceResponder = new ReadDatabaseResponder( _database, action, _serviceResponder );
-			_service.readDatabase( _database.db_name, serviceResponder ).execute();
+			_service.readDatabase( _database.databaseName, serviceResponder ).execute();
 		}
 		
 		/**
@@ -135,7 +136,7 @@ package com.custardbelly.as3couchdb.mediator
 		public function doDelete():void
 		{
 			var serviceResponder:ICouchServiceResponder = new DeleteDatabaseResponder( _database, _serviceResponder );
-			_service.deleteDatabase( _database.db_name, serviceResponder ).execute();
+			_service.deleteDatabase( _database.databaseName, serviceResponder ).execute();
 		}
 		
 		/**
@@ -143,7 +144,8 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doInfo():void
 		{
-			_service.getDatabaseInfo( _database.db_name, _serviceResponder ).execute();
+			var readResponder:ICouchServiceResponder = new ReadDatabaseResponder( _database, CouchActionType.INFO, _serviceResponder )
+			_service.getDatabaseInfo( _database.databaseName, readResponder ).execute();
 		}
 		
 		/**
@@ -151,7 +153,7 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doGetChanges():void
 		{
-			_service.getDatabaseChanges( _database.db_name, _serviceResponder ).execute();
+			_service.getDatabaseChanges( _database.databaseName, _serviceResponder ).execute();
 		}
 		
 		/**
@@ -160,7 +162,7 @@ package com.custardbelly.as3couchdb.mediator
 		 */
 		public function doCompact( cleanup:Boolean ):void
 		{
-			_service.compactDatabase( _database.db_name, cleanup, _serviceResponder ).execute();
+			_service.compactDatabase( _database.databaseName, cleanup, _serviceResponder ).execute();
 		}
 		
 		/**
@@ -171,20 +173,21 @@ package com.custardbelly.as3couchdb.mediator
 		public function doGetAllDocuments():void
 		{
 			var serviceResponder:ReadAllDocumentsResponder = new ReadAllDocumentsResponder( _serviceResponder );
-			_service.getAllDocuments( _database.db_name, true, serviceResponder ).execute();
+			_service.getAllDocuments( _database.databaseName, true, serviceResponder ).execute();
 		}
 		
 		/**
 		 * Invokes service to request documents based on design view map/reduce with optional key value filter. 
-		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
 		 * @param designDocumentName String
 		 * @param viewName String
 		 * @param keyValue String
+		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
+		 * @param documentEntity CouchModelEntity The optional CouchModelEntity instance to clone and supply to new instances of documentClass
 		 */
-		public function doGetDocumentsFromView( documentClass:String, designDocumentName:String, viewName:String, keyValue:String ):void
+		public function doGetDocumentsFromView( designDocumentName:String, viewName:String, keyValue:String,  documentClass:String, documentEntity:CouchModelEntity = null ):void
 		{
-			var serviceResponder:ReadDocumentsFromViewResponder = new ReadDocumentsFromViewResponder( documentClass, _serviceResponder );
-			_service.getDocumentsFromView( _database.db_name, designDocumentName, viewName, keyValue, serviceResponder ).execute();
+			var serviceResponder:ReadDocumentsFromViewResponder = new ReadDocumentsFromViewResponder( _serviceResponder, documentClass, documentEntity );
+			_service.getDocumentsFromView( _database.databaseName, viewName,  designDocumentName, documentEntity, keyValue, serviceResponder ).execute();
 		}
 	}
 }

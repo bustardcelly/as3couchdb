@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ReadDocumentsFromViewResponder.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.6</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 package com.custardbelly.as3couchdb.responder
 {
 	import com.custardbelly.as3couchdb.core.CouchDocument;
+	import com.custardbelly.as3couchdb.core.CouchModelEntity;
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
 	import com.custardbelly.as3couchdb.enum.CouchActionType;
@@ -38,16 +39,19 @@ package com.custardbelly.as3couchdb.responder
 	public class ReadDocumentsFromViewResponder extends ReadAllDocumentsResponder
 	{
 		protected var _documentClass:String;
+		protected var _documentEntity:CouchModelEntity;
 		
 		/**
 		 * Constructor. 
-		 * @param documentClass String The fully-qualified classname of the document to resolve results to.
 		 * @param responder ICouchServiceResponder
+		 * @param documentClass String The fully-qualified classname of the document to resolve results to.
+		 * @param documentEntity CouchDocumentEntity The optional entity to supply to the resolved document.
 		 */
-		public function ReadDocumentsFromViewResponder(documentClass:String, responder:ICouchServiceResponder)
+		public function ReadDocumentsFromViewResponder( responder:ICouchServiceResponder, documentClass:String, documentEntity:CouchModelEntity = null )
 		{
 			super(responder);
 			_documentClass = documentClass;
+			_documentEntity = documentEntity;
 		}
 		
 		/**
@@ -66,7 +70,7 @@ package com.custardbelly.as3couchdb.responder
 				for( i = 0; i < documents.length; i++ )
 				{
 					// Documents are assume to be returned from map/reduce as ( key:id, value:doc ).
-					document = _documentReader.createDocumentFromResult( _documentClass, documents[i].value );
+					document = _documentReader.createDocumentFromResult( documents[i].value, _documentClass, _documentEntity );
 					documentList.push( document );
 				}
 				

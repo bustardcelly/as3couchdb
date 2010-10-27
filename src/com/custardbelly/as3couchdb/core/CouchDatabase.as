@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabase.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.6</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -70,15 +70,17 @@ package com.custardbelly.as3couchdb.core
 	 */	
 	public class CouchDatabase extends CouchModel
 	{
-		public var db_name:String;
-		public var doc_count:int;
-		public var doc_del_count:int;
-		public var update_seq:int;
-		public var purge_seq:int;
-		public var compact_running:Boolean;
-		public var disk_size:Number;
-		public var instance_start_time:Number;
-		public var disk_format_version:int;
+//		public var db_name:String;
+//		public var doc_count:int;
+//		public var doc_del_count:int;
+//		public var update_seq:int;
+//		public var purge_seq:int;
+//		public var compact_running:Boolean;
+//		public var disk_size:Number;
+//		public var instance_start_time:Number;
+//		public var disk_format_version:int;
+//		
+		protected var _info:Object;
 		
 		/**
 		 * @private
@@ -89,12 +91,24 @@ package com.custardbelly.as3couchdb.core
 		
 		/**
 		 * Constructor. Resolves entity and creates ICouchDatabaseActionMediator to handle service actions.
+		 * @param entity CouchModelEntity Optional CouchModelEntity instance. If supplied, the properties will be resolved to that entity. If not, metadata will be parsed to construct entity.
 		 */
-		public function CouchDatabase()
+		public function CouchDatabase( entity:CouchModelEntity = null )
 		{
-			super();
-			db_name = databaseName;
+			super( entity );
+//			db_name = databaseName;
+			_info = new Object();
 			_actionMediator = _mediator as ICouchDatabaseActionMediator;
+		}
+		
+		/**
+		 * Returns the info object populated by creatIfNotExist() and info() invocation. 
+		 * @return 
+		 * 
+		 */
+		public function getInfo():Object
+		{
+			return _info;
 		}
 		
 		/**
@@ -158,15 +172,15 @@ package com.custardbelly.as3couchdb.core
 		
 		/**
 		 * Invokes action mediator to return all documents returned from a design document view, filter by optional key value. 
-		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a sepcified type of model.
 		 * @param designDocumentName String The design document name within the database.
 		 * @param viewName String The view name to query on which the map/reduce methods reside.
+		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a sepcified type of model.
+		 * @param documentEntity CouchModelEntity The optional CouchModelEntity to supply to resolved documentClass instances based on result.
 		 * @param keyValue String Optional filter on results by key type.
-		 * 
 		 */
-		public function getDocumentsFromView( documentClass:String, designDocumentName:String, viewName:String, keyValue:String = null ):void
+		public function getDocumentsFromView( designDocumentName:String, viewName:String, documentClass:String, documentEntity:CouchModelEntity = null, keyValue:String = null ):void
 		{
-			_actionMediator.doGetDocumentsFromView( documentClass, designDocumentName, viewName, keyValue );
+			_actionMediator.doGetDocumentsFromView( designDocumentName, viewName, keyValue, documentClass, ( documentEntity ) ? documentEntity.clone() : null );
 		}
 	}
 }

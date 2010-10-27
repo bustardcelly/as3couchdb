@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocument.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.6</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -78,10 +78,11 @@ package com.custardbelly.as3couchdb.core
 		
 		/**
 		 * Constructor. Resolves entity and creates ICouchDocumentActionMediator to handle service actions.
+		 * @param entity CouchModelEntity Optional CouchModelEntity instance. If supplied, the properties will be resolved to that entity. If not, metadata will be parsed to construct entity.
 		 */
-		public function CouchDocument()
+		public function CouchDocument( entity:CouchModelEntity = null )
 		{
-			super();
+			super( entity );
 			_actionMediator = _mediator as ICouchDocumentActionMediator; 
 			_attachments = new Vector.<CouchAttachment>();
 		}

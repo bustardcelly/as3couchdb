@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchDatabaseService.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.6</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 package com.custardbelly.as3couchdb.service
 {
 	import com.custardbelly.as3couchdb.command.IRequestCommand;
+	import com.custardbelly.as3couchdb.core.CouchModelEntity;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 	
 	import flash.net.URLRequest;
@@ -115,11 +116,14 @@ package com.custardbelly.as3couchdb.service
 		function getAllDocumentsBySequence( databaseName:String, includeDocs:Boolean = false, responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Makes request on design document in CouchDB instance. 
-		 * @param id String
+		 * @param databaseName String
+		 * @param viewName String
+		 * @param documentName String Full qualified-classname of CouchDocument to resolve results to.
+		 * @param documentEntity CouchModelEntity The optional entity to supply to each resolved CouchDocument.
 		 * @param responder ICouchServiceResponder
 		 * @return IRequestCommand
 		 */
-		function getDocumentsFromView( databaseName:String, documentName:String, viewName:String, byKeyValue:String = null, responder:ICouchServiceResponder = null ):IRequestCommand
+		function getDocumentsFromView( databaseName:String, viewName:String, documentName:String, documentEntity:CouchModelEntity = null, byKeyValue:String = null, responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Requests the list of databases in the target CouchDB instance. 
 		 * @param responder ICouchServiceResponder

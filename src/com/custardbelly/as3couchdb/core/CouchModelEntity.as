@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchModelEntity.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.6</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,17 +43,40 @@ package com.custardbelly.as3couchdb.core
 		protected var _baseUrl:String;
 		protected var _databaseName:String;
 		protected var _mediator:IServiceMediator;
+		protected var _request:ICouchRequest;
 		
 		/**
 		 * Constructor. 
 		 * @param baseUrl String
 		 * @param databaseName String
+		 * @param mediator IServiceMediator
+		 * @param request ICouchRequest The ICouchRequest implmementation to forward requests through.
 		 */
-		public function CouchModelEntity( baseUrl:String, databaseName:String, mediator:IServiceMediator )
+		public function CouchModelEntity( baseUrl:String, databaseName:String, request:ICouchRequest, mediator:IServiceMediator )
 		{
 			_baseUrl = baseUrl;
 			_databaseName = databaseName;
+			_request = request;
 			_mediator = mediator;
+		}
+		
+		/**
+		 * Initializes the mediating session for the model. 
+		 * @param model CouchModel
+		 */
+		public function initialize( model:CouchModel ):void
+		{
+			_mediator.initialize( model, _baseUrl, _databaseName, _request );
+		}
+		
+		/**
+		 * Clones this instance to re-use, such as the case when populating Documents from a data base request. 
+		 * @return CouchModelEntity
+		 */
+		public function clone():CouchModelEntity
+		{
+			var entity:CouchModelEntity = new CouchModelEntity( _baseUrl, _databaseName, _request, _mediator );
+			return entity;
 		}
 		
 		/**
@@ -129,10 +152,9 @@ package com.custardbelly.as3couchdb.core
 			// Else create a new instance of the mediator.
 			var mediatorClass:Class = getDefinitionByName( mediatorNode.arg.(@key=="name").@value ) as Class;
 			var mediator:IServiceMediator = new mediatorClass() as IServiceMediator;
-			mediator.initialize( model, url, name, request );
 			
 			// Pass back a new entity.
-			return new CouchModelEntity( url, name, mediator );
+			return new CouchModelEntity( url, name, request, mediator );
 		}
 	}
 }

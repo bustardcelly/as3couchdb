@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocumentReader.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.6</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ package com.custardbelly.as3couchdb.serialize
 	import com.custardbelly.as3couchdb.as3couchdb_internal;
 	import com.custardbelly.as3couchdb.core.CouchAttachment;
 	import com.custardbelly.as3couchdb.core.CouchDocument;
+	import com.custardbelly.as3couchdb.core.CouchModelEntity;
 	
 	import flash.utils.Dictionary;
 	import flash.utils.getDefinitionByName;
@@ -88,10 +89,10 @@ package com.custardbelly.as3couchdb.serialize
 		 * @param result Object
 		 * @return CouchDocument
 		 */
-		public function createDocumentFromResult( documentClass:String, result:Object ):CouchDocument
+		public function createDocumentFromResult( result:Object, documentClass:String, documentEntity:CouchModelEntity = null ):CouchDocument
 		{
 			var documentClazz:Class = getDefinitionByName( documentClass ) as Class;
-			var document:CouchDocument = new documentClazz() as CouchDocument;
+			var document:CouchDocument = new documentClazz( documentEntity ) as CouchDocument;
 			document.id = result["_id"];
 			updateDocumentFromRead( document, result );
 			return document;

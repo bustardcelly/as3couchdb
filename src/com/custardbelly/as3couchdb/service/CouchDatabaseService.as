@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabaseService.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.6</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ package com.custardbelly.as3couchdb.service
 {
 	import com.custardbelly.as3couchdb.command.CreateDatabaseCommand;
 	import com.custardbelly.as3couchdb.command.IRequestCommand;
+	import com.custardbelly.as3couchdb.core.CouchModelEntity;
 	import com.custardbelly.as3couchdb.enum.CouchContentType;
 	import com.custardbelly.as3couchdb.enum.CouchRequestMethod;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
@@ -293,7 +294,7 @@ package com.custardbelly.as3couchdb.service
 		 * @param responder ICouchServiceResponder
 		 * @return IRequestCommand
 		 */
-		public function getDocumentsFromView( databaseName:String, documentName:String, viewName:String, byKeyValue:String = null, responder:ICouchServiceResponder = null ):IRequestCommand
+		public function getDocumentsFromView( databaseName:String, viewName:String, documentName:String, documentEntity:CouchModelEntity = null, byKeyValue:String = null, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
 			var request:URLRequest = new URLRequest();
 			request.contentType = CouchContentType.JSON;

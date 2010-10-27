@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchDatabaseMediator.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.6</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,8 @@
  */
 package com.custardbelly.as3couchdb.mediator
 {
+	import com.custardbelly.as3couchdb.core.CouchModelEntity;
+
 	/**
 	 * ICouchDatabaseActionMediator is a mediator for invoking service operations relate to a target database. 
 	 * @author toddanderson
@@ -66,11 +68,12 @@ package com.custardbelly.as3couchdb.mediator
 		function doGetAllDocuments():void;
 		/**
 		 * Invokes service to request documents based on design view map/reduce with optional key value filter. 
-		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
 		 * @param designDocumentName String
 		 * @param viewName String
 		 * @param keyValue String
+		 * @param documentClass String The fully qualified Class name. This is used to resolve results to a specific model type.
+		 * @param documentEntity CouchModelEntity The optional CouchModelEntity instance to clone and supply to new instances of documentClass
 		 */
-		function doGetDocumentsFromView( documentClass:String, designDocumentName:String, viewName:String, keyValue:String ):void;
+		function doGetDocumentsFromView( designDocumentName:String, viewName:String, keyValue:String,  documentClass:String, documentEntity:CouchModelEntity = null ):void;
 	}
 }

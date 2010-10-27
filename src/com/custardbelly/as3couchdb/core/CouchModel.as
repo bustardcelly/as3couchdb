@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchModel.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.6</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,10 +42,12 @@ package com.custardbelly.as3couchdb.core
 		
 		/**
 		 * Constructor. Resolves entity for this instance based on metadata.
+		 * @param entity CouchModelEntity Optional CouchModelEntity instance. If supplied, the properties will be resolved to that entity. If not, metadata will be parsed to construct entity.
 		 */
-		public function CouchModel()
+		public function CouchModel( entity:CouchModelEntity = null )
 		{
-			_entity = CouchModelEntity.parse( this );
+			_entity = ( entity != null ) ? entity : CouchModelEntity.parse( this );
+			_entity.initialize( this );
 			_mediator = _entity.mediator;
 		}
 				

@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabaseReader.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.6</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,9 +47,10 @@ package com.custardbelly.as3couchdb.serialize
 		public function updateFromResult( database:CouchDatabase, result:Object ):void
 		{
 			var attribute:String;
+			var info:Object = database.getInfo();
 			for( attribute in result )
 			{
-				database[attribute] = result[attribute];
+				info[attribute] = result[attribute];
 			}
 		}
 		
