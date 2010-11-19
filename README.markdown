@@ -41,8 +41,17 @@ as3crypt can be found at [http://code.google.com/p/as3crypto/](http://code.googl
 At the core of as3couchdb are models representing two basic entities within a CouchDB instance - 
 a Database and a Document. A CouchDB instance can hold many Databases and Databases can hold many Documents.
 In as3couchdb, these entity models have their own methods for performing CRUD requests on a CouchDB instance.
-As such, the CouchDatabase and CouchDocument classes require custom metadata to perform these requests.
-The required annotation are as follows:
+As such, the CouchDatabase, CouchDocument and CouchUser classes allow for custom entity models that contain the business objects that perform these requests.
+
+## CouchModelEntity
+
+The CouchModelEntity class holds properties related to a target database within a CouchDB instance, as well as the business objects that are the basis of transactions.
+The role of the CouchModelEntity object is to wire up the associated service mediator for the target model (CouchDatabase, CouchDocument and CouchUser) upon instantiation of a new instance of that model.
+The model uses the service mediator to make requests in relation to its exposed action (CRUD) methods.
+
+as3couchdb allows for this wiring to happen by either supplying a custom CouchModelEntity upon instantiation of a model, or by declaring custom metadata for the model class. The metadata directly relates to the properties of a custom CouchModelEntity.
+
+The optional annotations are as follows:
 
 ## DocumentService
 
@@ -86,7 +95,7 @@ credentials.
 
 To start off, you would create custom models in your application that extend CouchDatabase and CouchDocument.
 
-The following is an example of a custom CouchDatabase model:
+The following is an example of a custom CouchDatabase model using annotations:
 
     [DocumentService(url="http://127.0.0.1:5984", name="contacts")]
     [ServiceMediator(name="com.custardbelly.as3couchdb.mediator.CouchDatabaseActionMediator")]
@@ -99,7 +108,22 @@ The following is an example of a custom CouchDatabase model:
       }
     }
 
-The following is an example of a custom CouchDocument model:
+The following is an example of instantiating a CouchDatabase with a custom CouchModelEntity:
+
+	var mediator:ICouchActionMediator = new CouchDatabaseActionMediator();
+	var request:IServiceRequest = new HTTPCouchRequest();
+	var entity:CouchModelEntity = new CouchModelEntity( "http://127.0.0.1:5984", "contacts", request, mediator );
+	var database:ContactDatabase = new ContactDatabase( entity );
+	database.addEventListener( CouchActionType.CREATE, handleDatabaseReadCreate, false, 0, true );
+	database.createIfNotExist();
+	...
+	protected function handleDatabaseReadCreate( evt:CouchEvent ):void
+	{
+		var result:CouchServiceResult = evt.data as CouchServiceResult;
+		var database:ContactDatabase = result.data as ContactDatabase;
+	}
+
+The following is an example of a custom CouchDocument model using annotations:
     
     [DocumentService(url="http://127.0.0.1:5984", name="contacts")]
     [ServiceMediator(name="com.custardbelly.as3couchdb.mediator.CouchDocumentActionMediator")]
@@ -117,19 +141,64 @@ The following is an example of a custom CouchDocument model:
     		super();
     	}
     }
+    
+The following is an example of instantiating a CouchDocument with a custom CouchModelEntity:
 
-The following is an example of a CouchSession model:
+	var mediator:ICouchActionMediator = new CouchDatabaseActionMediator();
+	var request:IServiceRequest = new HTTPCouchRequest();
+	var entity:CouchModelEntity = new CouchModelEntity( "http://127.0.0.1:5984", "contacts", request, mediator );
+	var document:ContactDocument = new ContactDocument( entity );
+	document.addEventListener( CouchActionType.CREATE, handleDocumentCreate, false, 0, true );
+	document.create();
+	...
+	protected function handleDocumentCreate( evt:CouchEvent )
+	{
+		var result:CouchServiceResult = evt.data as CouchServiceResult;
+		var document:ContactDocument = result.data as ContactDocument;
+	}
+
+The following is an example of a CouchUser model using annotations:
   
     [DocumentService(url="http://127.0.0.1:5984", name="contacts")]
     [ServiceMediator(name="com.custardbelly.as3couchdb.mediator.CouchSessionActionMediator")]
     [RequestType(name="com.custardbelly.as3couchdb.service.HTTPSessionRequest")]
-    public class ContactSession extends CouchSession
+    public class ContactUser extends CouchSession
     {
-    	public function ContactSession()
+    	public function ContactUser( username:String = null, password:String = null )
     	{
-    		super();
+    		super( username, password );
     	}
     }
+    
+The following is an example of instantiating a CouchUser with a custom CouchModelEntity:
+
+	var mediator:ICouchActionMediator = new CouchDatabaseActionMediator();
+	var request:IServiceRequest = new HTTPCouchRequest();
+	var entity:CouchModelEntity = new CouchModelEntity( "http://127.0.0.1:5984", "contacts", request, mediator );
+	var user:ContactUser = new ContactUser( entity );
+	user.addEventListener( CouchActionType.CREATE, handleUserCreate, false, 0, true );
+	user.addEventListener( CouchActionType.LOGIN, handleUserLogin, false, 0, true );
+	user.signUp();
+	...
+	protected function handleUserCreate( evt:CouchEvent )
+	{
+		var result:CouchServiceResult = evt.data as CouchServiceResult;
+		var user:ContactUser = result.data as ContactUser;
+		user.login();
+	}
+	protected function handleUserLogin( evt:CouchEvent )
+	{
+		// persistant session has been created and will be used on any further transactions with the CouchDB instance.
+	}
+
+Once a CouchUser has been logged in, any subsequent request on documents and databases will be based on the current session. as3couchdb handles renewing
+a session after a defined time lapse (the default time lapse for CouchDB is 10 minutes. This can be modified in the CouchDB instance).
+
+CouchUser is required if you are not running what is referred to as an "admin party" on your CouchDB instance. This means there are no administrators defined for your CouchDB instance,
+and any one can make any type of transaction. Once you have set up the CouchDB instance to have at least on administrator, that administrator must be logged in (using CouchUser) and a valid session available in order
+to signUp() new CouchUser objects and to createIfNotExists() new CouchDatabase objects.
+
+## Further Examples
 
 The following is an example of accessing all the documents within the ContactDatabase:
   
@@ -170,18 +239,3 @@ To create a new document in CouchDatabase:
 The create() method is used for Create and Update. The read() method Reads the document from the
 database and populates the model. The update() method saves any changes to the database instance.
 The remove() method Deletes the document from the database.
-
-Additionally, you an add security by establishing a session. The CouchSession model handles
-interacting with the service through a mediator to request a cookie to use fro each subsequent request.
-Once a session is started, it is assumed under the hood that any following requests are made against a 
-certain user session.
-
-To start a session, such as requesting a user to log in to begin making requests to the CouchDB instance based
-on a session cookie:
-
-    var session:CouchSession = new ContactSession();
-    session.addEventListener( CouchActionType.SESSION_CREATE, handleSessionCreate );
-    session.create( new CouchUser( username, password ) );
-
-Any subsequent request on documents and databases will be based on the current session. as3couchdb handles renewing
-a session after a defined time lapse (the default time lapse for CouchDB is 10 minutes. This can be modified in the CouchDB instance).
