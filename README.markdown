@@ -86,11 +86,6 @@ The models are extensions to EventDispatcher and the ServiceMediator handles dis
 related to response from the CouchDB service. You can listen for these corresponding CRUD events on the models as well
 as basic result and fault events.
 
-## Sessions ##
-Additionaly there is another model to be used as a persistant session: CouchSession. The use of the session enforces
-more security when making service request on the CouchDB by establishing a session based on a cookie returned on user 
-credentials.
-
 # Examples #
 
 To start off, you would create custom models in your application that extend CouchDatabase and CouchDocument.
