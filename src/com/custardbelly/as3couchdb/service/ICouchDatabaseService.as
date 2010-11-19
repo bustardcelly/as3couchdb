@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchDatabaseService.as</p>
- * <p>Version: 0.6</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -118,12 +118,11 @@ package com.custardbelly.as3couchdb.service
 		 * Makes request on design document in CouchDB instance. 
 		 * @param databaseName String
 		 * @param viewName String
-		 * @param documentName String Full qualified-classname of CouchDocument to resolve results to.
-		 * @param documentEntity CouchModelEntity The optional entity to supply to each resolved CouchDocument.
+		 * @param documentName String
 		 * @param responder ICouchServiceResponder
 		 * @return IRequestCommand
 		 */
-		function getDocumentsFromView( databaseName:String, viewName:String, documentName:String, documentEntity:CouchModelEntity = null, byKeyValue:String = null, responder:ICouchServiceResponder = null ):IRequestCommand
+		function getDocumentsFromView( databaseName:String, viewName:String, documentName:String, byKeyValue:String = null, responder:ICouchServiceResponder = null ):IRequestCommand
 		/**
 		 * Requests the list of databases in the target CouchDB instance. 
 		 * @param responder ICouchServiceResponder

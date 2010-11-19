@@ -169,7 +169,7 @@ package com.custardbelly.couchdb.example.view
 			{
 				// Try and fill document from result.
 				// If faulted, document returned is not related to a ContactDocument.
-				contact = contactReader.createDocumentFromResult( getQualifiedClassName( ContactDocument ), value ) as ContactDocument;
+				contact = contactReader.createDocumentFromResult( value, getQualifiedClassName( ContactDocument ) ) as ContactDocument;
 			}
 			catch( e:Error )
 			{

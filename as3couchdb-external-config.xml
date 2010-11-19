@@ -17,6 +17,11 @@
   		<path-element>${as3corelib.utils.StringUtil}</path-element>
   	</include-sources>
   	
+  	<include-sources includes="**/*">
+    	<path-element>${src.dir}</path-element>
+    </include-sources>
+  	
+  	<!--  
   	<include-classes>
     	<class>com.custardbelly.as3couchdb.as3couchdb_internal</class>
     	<class>com.custardbelly.as3couchdb.command.CouchRequestCommand</class>
@@ -84,6 +89,7 @@
     	<class>com.custardbelly.as3couchdb.service.ICouchService</class>
     	<class>com.custardbelly.as3couchdb.util.UUID</class>
   	</include-classes>
+  	-->
   	
   	<output>${lib.bin.dir}/${lib.name}.swc</output>
   	

@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocumentReader.as</p>
- * <p>Version: 0.6</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,6 +52,7 @@ package com.custardbelly.as3couchdb.serialize
 		 */
 		public function CouchDocumentReader() 
 		{
+			super();
 			reservedProperties = new Dictionary( true );
 			reservedProperties["_id"] = true;
 			reservedProperties["_rev"] = true;
@@ -78,6 +79,7 @@ package com.custardbelly.as3couchdb.serialize
 				attachment = new CouchAttachment( file, result[file].content_type );
 				attachment.document = document;
 				attachment.url = document.baseUrl + "/" + document.databaseName + "/" + document.id + "/" + file;
+				attachment.stub = result;
 				attachments.push( attachment );
 			}
 			return attachments;
@@ -92,7 +94,16 @@ package com.custardbelly.as3couchdb.serialize
 		public function createDocumentFromResult( result:Object, documentClass:String, documentEntity:CouchModelEntity = null ):CouchDocument
 		{
 			var documentClazz:Class = getDefinitionByName( documentClass ) as Class;
-			var document:CouchDocument = new documentClazz( documentEntity ) as CouchDocument;
+			// TODO: Document might extend core models with custom constructor arguments.
+			var document:CouchDocument;
+			if( documentEntity != null )
+			{
+				document = new documentClazz( ( documentEntity ) ? documentEntity.clone() : null ) as CouchDocument;
+			}
+			else
+			{
+				document = new documentClazz() as CouchDocument;
+			}
 			document.id = result["_id"];
 			updateDocumentFromRead( document, result );
 			return document;

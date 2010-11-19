@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchActionType.as</p>
- * <p>Version: 0.6</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,9 @@ package com.custardbelly.as3couchdb.enum
 		public static const DELETE:String = "delete";
 		public static const INFO:String = "info";
 		
+		public static const LOGIN:String = "login";
+		public static const LOGOUT:String = "logout";
+		
 		public static const READ_DOCUMENTS:String = "readDocuments";
-		public static const SESSION_CREATE:String = "sessionCreate";
 	}
 }

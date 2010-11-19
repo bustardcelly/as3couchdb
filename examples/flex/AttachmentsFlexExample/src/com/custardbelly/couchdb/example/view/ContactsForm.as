@@ -1,12 +1,20 @@
 package com.custardbelly.couchdb.example.view
 {
 	import com.custardbelly.as3couchdb.core.CouchDatabase;
+	import com.custardbelly.as3couchdb.core.CouchModelEntity;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
+	import com.custardbelly.as3couchdb.core.CouchUser;
 	import com.custardbelly.as3couchdb.enum.CouchActionType;
 	import com.custardbelly.as3couchdb.event.CouchEvent;
+	import com.custardbelly.as3couchdb.mediator.CouchUserActionMediator;
+	import com.custardbelly.as3couchdb.mediator.IServiceMediator;
+	import com.custardbelly.as3couchdb.service.HTTPCouchRequest;
+	import com.custardbelly.as3couchdb.service.ICouchRequest;
+	import com.custardbelly.couchdb.example.alert.LogInPanel;
 	import com.custardbelly.couchdb.example.event.ContactEvent;
 	import com.custardbelly.couchdb.example.model.ContactDatabase;
 	import com.custardbelly.couchdb.example.model.ContactDocument;
+	import com.custardbelly.couchdb.example.model.ContactUser;
 	import com.custardbelly.couchdb.example.serialize.ContactDocumentReader;
 	
 	import flash.display.Sprite;
@@ -34,7 +42,6 @@ package com.custardbelly.couchdb.example.view
 		public var loadDatabaseButton:Button;
 		public var deleteDatabaseButton:Button;
 		public var infoDatabaseButton:Button;
-		
 		public var contactList:List;
 		public var addContactButton:Button;
 		
@@ -43,6 +50,8 @@ package com.custardbelly.couchdb.example.view
 		
 		protected var contactPanel:ContactEditPanel;
 		protected var deletePanel:ContactDeletePanel;
+		
+		protected var _login:LogInPanel;
 		
 		[Bindable] public var contacts:ArrayCollection;
 		
@@ -86,6 +95,17 @@ package com.custardbelly.couchdb.example.view
 			addContactButton.addEventListener( MouseEvent.CLICK, handleAddClick, false, 0, true );
 			
 			BindingUtils.bindProperty( contactList, "dataProvider", this, "contacts" );
+			
+			// *** Need to login as administor at least the first time in order to create a database ***
+			// Create login.
+			if( _login == null )
+			{
+				_login = new LogInPanel();
+				_login.addEventListener( LogInPanel.SUBMIT, handleLoginSubmit, false, 0, true );
+			}
+			// Add to PopUpManager.
+			PopUpManager.addPopUp( _login, this, true );
+			PopUpManager.centerPopUp( _login );
 		}
 		
 		/**
@@ -169,7 +189,7 @@ package com.custardbelly.couchdb.example.view
 			{
 				// Try and fill document from result.
 				// If faulted, document returned is not related to a ContactDocument.
-				contact = contactReader.createDocumentFromResult( getQualifiedClassName( ContactDocument ), value ) as ContactDocument;
+				contact = contactReader.createDocumentFromResult( value, getQualifiedClassName( ContactDocument ) ) as ContactDocument;
 			}
 			catch( e:Error )
 			{
@@ -249,6 +269,32 @@ package com.custardbelly.couchdb.example.view
 				loadContacts();
 			else
 				contacts = new ArrayCollection();
+		}
+		
+		protected function handleLoginSubmit( evt:Event ):void
+		{
+			_login.showMessage( "Loading..." );
+			var username:String = _login.username;
+			var password:String = _login.password;
+			// Create a new session. This is stored in service and used for any
+			//	subsequent requests.
+			var request:ICouchRequest = new HTTPCouchRequest();
+			var mediator:IServiceMediator = new CouchUserActionMediator();
+			var entity:CouchModelEntity = new CouchModelEntity( "http://127.0.0.1:5984", "muwl", request, mediator );
+			var user:CouchUser = new ContactUser( username, password, entity );
+			user.addEventListener( CouchActionType.LOGIN, handleUserLogin );
+			user.addEventListener( CouchEvent.FAULT, handleUserFault );
+			user.login();
+		}
+		
+		protected function handleUserLogin( evt:CouchEvent ):void
+		{
+			PopUpManager.removePopUp( _login );
+		}
+		
+		protected function handleUserFault( evt:CouchEvent ):void
+		{
+			trace( "login fault: " + evt );
 		}
 		
 		/**

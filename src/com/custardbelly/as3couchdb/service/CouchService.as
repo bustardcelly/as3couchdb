@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchService.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,15 +24,18 @@
  * <p>Licensed under The MIT License</p>
  * <p>Redistributions of files must retain the above copyright notice.</p>
  */
+// TODO: Get all user docs: http://127.0.0.1:5984/_users/_all_docs
 package com.custardbelly.as3couchdb.service
 {
-	import com.custardbelly.as3couchdb.as3couchdb_internal;
+	import com.adobe.serialization.json.JSONEncoder;
 	import com.custardbelly.as3couchdb.command.CouchRequestCommand;
 	import com.custardbelly.as3couchdb.command.IRequestCommand;
 	import com.custardbelly.as3couchdb.core.CouchSession;
 	import com.custardbelly.as3couchdb.core.CouchUser;
+	import com.custardbelly.as3couchdb.enum.CouchContentType;
 	import com.custardbelly.as3couchdb.enum.CouchRequestMethod;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
+	import com.custardbelly.as3couchdb.util.SaltedPassword;
 	
 	import flash.errors.IllegalOperationError;
 	import flash.net.URLRequest;
@@ -46,9 +49,7 @@ package com.custardbelly.as3couchdb.service
 		protected var _baseUrl:String;
 		protected var _request:ICouchRequest;
 		
-		protected var _user:CouchUser;
-		
-		public static var session:CouchSession;
+		private static var session:CouchSession;
 		private static var sessionCookieRequired:Boolean;
 		
 		/**
@@ -66,13 +67,17 @@ package com.custardbelly.as3couchdb.service
 		/**
 		 * Creation of basic service to instantiate any other service requests as requiring session.
 		 * @param baseUrl String The url of the CouchDB instance.
-		 * @param request ICouchRequest The ICouchRequest implmentation to request a session cookie.
+		 * @param request ICouchRequest The ICouchRequest implementations to forward requests through.
 		 * @return ICouchService
 		 */
 		public static function getSessionService( baseUrl:String, request:ICouchRequest ):ICouchService
 		{
 			var service:ICouchService = new CouchService( baseUrl, request );
 			CouchService.sessionCookieRequired = true;
+			
+			if( CouchService.session == null ) 
+				CouchService.session = new CouchSession();
+			
 			return service;
 		}
 		
@@ -96,8 +101,7 @@ package com.custardbelly.as3couchdb.service
 				else if( CouchService.session.hasExpired() )
 				{
 					// Let session renew with pending command mark.
-					use namespace as3couchdb_internal;
-					return CouchService.session.renew();
+					return renewSession( CouchService.session );
 				}
 				else
 				{
@@ -106,6 +110,21 @@ package com.custardbelly.as3couchdb.service
 				}
 			}
 			return null;
+		}
+		
+		/**
+		 * Renews a session for the service to use for authentication of requests. 
+		 * @param session CouchSession
+		 */
+		protected function renewSession( session:CouchSession, responder:ICouchServiceResponder = null ):IRequestCommand
+		{
+			var user:CouchUser = session.user;
+			var request:URLRequest = new URLRequest();
+			request.url = _baseUrl + "/_session";
+			request.contentType = "application/x-www-form-urlencoded";
+			request.data = "name=" + user.name + "&password=" + user.password;
+			
+			return new CouchRequestCommand( _request, request, CouchRequestMethod.POST, responder );
 		}
 		
 		/**
@@ -130,18 +149,53 @@ package com.custardbelly.as3couchdb.service
 		}
 		
 		/**
-		 * Creates a session for the service to use for authentication of requests. 
-		 * @param user CouchUser
+		 * @copy ICouchService#signUp()
 		 */
-		public function createSession( user:CouchUser, responder:ICouchServiceResponder = null ):IRequestCommand
+		public function signUp( name:String, password:String, roles:Array /* String[] */ = null, responder:ICouchServiceResponder = null ):IRequestCommand
 		{
-			_user = user;
+			// Format of id for couchdb user.
+			var id:String = "org.couchdb.user:" + name;
+			var saltedPassword:SaltedPassword = SaltedPassword.generate( password );
+			var salt:String = saltedPassword.salt;
+			var password_sha:String = saltedPassword.password; 
+			var request:URLRequest = new URLRequest();
+			var rolesArr:Object = new JSONEncoder( {roles:roles} );
+			request.url = encodeURI(_baseUrl + "/_users/" + id);
+			request.contentType = CouchContentType.JSON;
+			request.data = new JSONEncoder( {name:name, _id:id, type:"user", roles:(roles)?roles:[], salt:salt, password_sha:password_sha} ).getString();
+			
+			return makeRequest( request, CouchRequestMethod.PUT, responder );
+		}
+		
+		/**
+		 * @copy ICouchService#logIn()
+		 */
+		public function logIn( name:String, password:String, responder:ICouchServiceResponder = null ):IRequestCommand
+		{
 			var request:URLRequest = new URLRequest();
 			request.url = _baseUrl + "/_session";
 			request.contentType = "application/x-www-form-urlencoded";
-			request.data = "username=" + _user.name + "&password=" + _user.password;
+			request.data = "name=" + name + "&password=" + password;
 			
-			return new CouchRequestCommand( _request, request, CouchRequestMethod.POST, responder );
+			return makeRequest( request, CouchRequestMethod.SESSION, responder );
+		}
+		
+		/**
+		 * @copy ICouchService#logOut()
+		 */
+		public function logOut( user:CouchUser, responder:ICouchServiceResponder = null ):IRequestCommand
+		{
+			var request:URLRequest = new URLRequest();
+			request.url = _baseUrl + "/_session";
+			return makeRequest( request, CouchRequestMethod.DELETE, responder );
+		}
+		
+		/**
+		 * @copy ICouchService#getSession()
+		 */
+		public function getSession():CouchSession
+		{
+			return CouchService.session;
 		}
 		
 		/**

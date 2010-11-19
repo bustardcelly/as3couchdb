@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: IServiceMediator.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,5 +43,9 @@ package com.custardbelly.as3couchdb.mediator
 		 * @param databaseName String
 		 */
 		function initialize( target:CouchModel, baseUrl:String, databaseName:String, request:ICouchRequest = null ):void;
+		/**
+		 * Disposes the meditaing session associated with this instance.
+		 */
+		function dispose():void;
 	}
 }

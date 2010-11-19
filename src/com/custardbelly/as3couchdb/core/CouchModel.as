@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchModel.as</p>
- * <p>Version: 0.6</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,20 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function CouchModel( entity:CouchModelEntity = null )
 		{
-			_entity = ( entity != null ) ? entity : CouchModelEntity.parse( this );
+			var defaultEntity:CouchModelEntity = ( entity != null ) ? entity : CouchModelEntity.parse( this );
+			commitEntity( null, defaultEntity );
+		}
+		
+		/**
+		 * @private 
+		 * 
+		 * Update to entity has occurred. Perform any processes related to the entity necessary.
+		 */
+		protected function commitEntity( oldEntity:CouchModelEntity, newEntity:CouchModelEntity ):void
+		{
+			if( oldEntity ) oldEntity.dispose();
+			
+			_entity = newEntity;
 			_entity.initialize( this );
 			_mediator = _entity.mediator;
 		}
@@ -80,6 +93,23 @@ package com.custardbelly.as3couchdb.core
 		public function set isDeleted( value:Boolean ):void
 		{
 			_isDeleted = value;
+		}
+		
+		/**
+		 * Accessor/Modifier for the entity to allow runtime changing of server communication context.
+		 * Mainly for online/offline synchronization and possibly serialization to disc.
+		 * @return CouchModelEntity
+		 */
+		public function get entity():CouchModelEntity
+		{
+			return _entity;
+		}
+		public function set entity( value:CouchModelEntity ):void
+		{
+			if( _entity == value || value == null ) return;
+			
+			var oldEntity:CouchModelEntity = _entity;
+			commitEntity( oldEntity, value );
 		}
 	}
 }

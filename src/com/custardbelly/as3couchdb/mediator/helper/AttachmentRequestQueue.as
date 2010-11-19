@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: AttachmentRequestQueue.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,8 @@ package com.custardbelly.as3couchdb.mediator.helper
 	import com.custardbelly.as3couchdb.serialize.CouchDocumentReader;
 	import com.custardbelly.as3couchdb.serialize.ICouchDocumentReader;
 	import com.custardbelly.as3couchdb.service.ICouchDocumentService;
+	
+	import flash.utils.ByteArray;
 	
 	/**
 	 * AttachmentRequestQueue is a request queue for saving and deleting attachments related to a document. 
@@ -112,6 +114,25 @@ package com.custardbelly.as3couchdb.mediator.helper
 		}
 		
 		/**
+		 * Creates a temporary stub for a newly added attachment to a document. The stub is needed to modify the document without having to send attachments over the wire again on each update. 
+		 * @param attachment CouchAttachment
+		 * @return Object
+		 * @TODO: Revisit this. Don't want to go through another read in from document just to get the stub, but if these fields change in CouchDB, this is constant maintainence.
+		 */
+		protected function createStubFromAttachment( attachment:CouchAttachment ):Object
+		{
+			var revision:String = attachment.revisionPosition;
+			var stub:Object = {};
+			var file:Object = {}; 
+			file["stub"] = true;
+			file["revpos"] = int( revision.substr( 0, revision.indexOf( "-" ) ) );
+			file["length"] = ( attachment.data is ByteArray ) ? ( attachment.data as ByteArray ).length : 0;
+			file["content_type"] = attachment.contentType;
+			stub[attachment.fileName] = file;
+			return stub;
+		}
+		
+		/**
 		 * @private 
 		 * 
 		 * Notifies final responder of result if available.
@@ -180,6 +201,7 @@ package com.custardbelly.as3couchdb.mediator.helper
 				// Update attachment in relation to document.
 				_currentAttachment.document = _document;
 				_currentAttachment.revisionPosition = _document.revision;
+				_currentAttachment.stub = createStubFromAttachment( _currentAttachment );
 				
 				// Remove attachment from list on document if delete.
 				if( _currentAttachment.isDeleted )

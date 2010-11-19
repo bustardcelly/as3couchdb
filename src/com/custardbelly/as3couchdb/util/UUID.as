@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: UUID.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
  */
 package com.custardbelly.as3couchdb.util
 {
+	import com.hurlant.crypto.hash.IHash;
 	import com.hurlant.crypto.hash.SHA1;
 	import com.hurlant.crypto.hash.SHA256;
 	
@@ -38,17 +39,20 @@ package com.custardbelly.as3couchdb.util
 	public class UUID
 	{
 		/**
-		 * Generates a SHA1 hash unique id to be used in document creation. 
-		 * @param url String The base url used within the hash.
+		 * @private
+		 * 
+		 * Creates a hash string based on supplied hash algorithm. 
+		 * @param str String
+		 * @param hashBase IHash
 		 * @return String
 		 */
-		public static function generate( url:String ):String
+		private static function stringHash( str:String, hashBase:IHash ):String
 		{
 			var bytes:ByteArray = new ByteArray();
-			bytes.writeUTFBytes( ( new Date().time.toString() + "@" + url ).toString() + "-" + Math.random().toString() );
+			bytes.writeUTFBytes( ( new Date().time.toString() + "@" + str ).toString() + "-" + Math.random().toString() );
 			bytes.position = 0;
 			
-			var hash:ByteArray = new SHA256().hash( bytes );
+			var hash:ByteArray = hashBase.hash( bytes );
 			hash.position = 0;
 			
 			var uid:String = "";
@@ -56,6 +60,26 @@ package com.custardbelly.as3couchdb.util
 				uid += hash.readUnsignedInt().toString(16);
 			
 			return uid;
+		}
+		
+		/**
+		 * Generates a SHA256 hash unique id to be used in document creation. 
+		 * @param url String The base url used within the hash.
+		 * @return String
+		 */
+		public static function generate( url:String ):String
+		{
+			return stringHash( url, new SHA256() );
+		}
+		
+		/**
+		 * Generates a SHA1 hash unique id to be used in document creation. 
+		 * @param url String The base url used within the hash.
+		 * @return String
+		 */
+		public static function generateSHA1( url:String ):String
+		{
+			return stringHash( url, new SHA1() );
 		}
 	}
 }

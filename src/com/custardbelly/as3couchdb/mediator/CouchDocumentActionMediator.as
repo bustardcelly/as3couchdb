@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocumentActionMediator.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -79,6 +79,17 @@ package com.custardbelly.as3couchdb.mediator
 			_documentUpdateResponder = new BasicCouchResponder( handleDocumentUpdateResult, handleServiceFault );
 			// Create basic responder to handle result and fault from service.
 			_serviceResponder = new BasicCouchResponder( handleServiceResult, handleServiceFault );	
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function dispose():void
+		{
+			_document = null;
+			_service = null;
+			_documentUpdateResponder = null;
+			_serviceResponder = null;
 		}
 		
 		/**

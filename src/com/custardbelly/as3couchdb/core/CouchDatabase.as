@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabase.as</p>
- * <p>Version: 0.6</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -70,16 +70,6 @@ package com.custardbelly.as3couchdb.core
 	 */	
 	public class CouchDatabase extends CouchModel
 	{
-//		public var db_name:String;
-//		public var doc_count:int;
-//		public var doc_del_count:int;
-//		public var update_seq:int;
-//		public var purge_seq:int;
-//		public var compact_running:Boolean;
-//		public var disk_size:Number;
-//		public var instance_start_time:Number;
-//		public var disk_format_version:int;
-//		
 		protected var _info:Object;
 		
 		/**
@@ -96,8 +86,15 @@ package com.custardbelly.as3couchdb.core
 		public function CouchDatabase( entity:CouchModelEntity = null )
 		{
 			super( entity );
-//			db_name = databaseName;
 			_info = new Object();
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		override protected function commitEntity( oldEntity:CouchModelEntity, newEntity:CouchModelEntity ):void
+		{
+			super.commitEntity( oldEntity, newEntity );
 			_actionMediator = _mediator as ICouchDatabaseActionMediator;
 		}
 		

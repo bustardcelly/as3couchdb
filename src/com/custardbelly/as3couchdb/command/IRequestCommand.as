@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: IRequestCommand.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,12 @@
 		 */
 		function get nextCommand():IRequestCommand;
 		function set nextCommand( value:IRequestCommand ):void;
+		/**
+		 * Accessor/Modifier for stopping optional chained command on fault. 
+		 * @return Boolean
+		 */
+		function get ceaseOnFault():Boolean;
+		function set ceaseOnFault( value:Boolean ):void;
 		/**
 		 * Executes command.
 		 */

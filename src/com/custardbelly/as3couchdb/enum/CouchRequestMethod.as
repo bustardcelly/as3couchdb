@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchRequestMethod.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,5 +37,10 @@ package com.custardbelly.as3couchdb.enum
 		public static const POST:String = "POST";
 		public static const DELETE:String = "DELETE";
 		public static const COPY:String = "COPY";
+		
+		/**
+		 * Session is a marker for a POST action that is requesting a cookie for authentication. 
+		 */
+		public static const SESSION:String = "SESSION";
 	}
 }

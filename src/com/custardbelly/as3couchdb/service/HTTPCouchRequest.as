@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: HTTPCouchRequest.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,8 +31,10 @@ package com.custardbelly.as3couchdb.service
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
 	import com.custardbelly.as3couchdb.enum.CouchContentType;
+	import com.custardbelly.as3couchdb.enum.CouchHeaderType;
 	import com.custardbelly.as3couchdb.enum.CouchRequestMethod;
 	import com.custardbelly.as3couchdb.event.CouchEvent;
+	import com.custardbelly.as3couchdb.net.CouchSessionResponse;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 	
 	import flash.events.ErrorEvent;
@@ -64,6 +66,7 @@ package com.custardbelly.as3couchdb.service
 	{
 		protected var _client:HttpClient;
 		protected var _responseBytes:ByteArray;
+		protected var _isRequestingSessionCookie:Boolean;
 		
 		/**
 		 * Constructor.
@@ -98,6 +101,29 @@ package com.custardbelly.as3couchdb.service
 				header = headers.shift() as URLRequestHeader;
 				request.addHeader( header.name, header.value );
 			}	
+		}
+		
+		/**
+		 * @private
+		 * 
+		 * Determines the service result object based on session request flag. 
+		 * @param response HttpResponse
+		 * @return Object
+		 */
+		protected function determineResult( response:HttpResponse ):Object
+		{
+			var object:Object;
+			var jsonResult:Object = JSON.decode( _responseBytes.readUTFBytes( _responseBytes.bytesAvailable ) );
+			if( _isRequestingSessionCookie )
+			{
+				var cookie:String = response.header.getValue( CouchHeaderType.SESSION_COOKIE );
+				object = new CouchSessionResponse( cookie, jsonResult );
+			}
+			else
+			{
+				object = jsonResult;
+			}
+			return object;
 		}
 		
 		/* HttpListener implmementations */
@@ -141,8 +167,8 @@ package com.custardbelly.as3couchdb.service
 			if( isSuccess )
 			{
 				_responseBytes.position = 0;
-				var jsonResult:Object = JSON.decode( _responseBytes.readUTFBytes( _responseBytes.bytesAvailable ) );
-				respondToResult( CouchEvent.RESULT, jsonResult );
+				var result:Object = determineResult( response );
+				respondToResult( CouchEvent.RESULT, result );
 			}
 			else
 			{
@@ -176,6 +202,7 @@ package com.custardbelly.as3couchdb.service
 			super.execute( urlRequest, requestType, responder );
 			
 			_responseBytes = new ByteArray();
+			_isRequestingSessionCookie = ( requestType == CouchRequestMethod.SESSION );
 			
 			var request:HttpRequest;
 			var uri:URI = new URI( urlRequest.url );
@@ -204,6 +231,7 @@ package com.custardbelly.as3couchdb.service
 					request.body = body;
 					break;
 				case CouchRequestMethod.POST:
+				case CouchRequestMethod.SESSION:
 					request = new Post();
 					request.contentType = urlRequest.contentType;
 					request.body = body;

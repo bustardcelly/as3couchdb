@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchSessionActionMediator.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,5 +46,21 @@ package com.custardbelly.as3couchdb.mediator
 		 * @param user CouchUser
 		 */
 		function doCreate( user:CouchUser ):void;
+		/**
+		 * Invokes service to create a new user and log in. 
+		 * @param user CouchUser
+		 * @param roles Array An array of roles assigned to the user.
+		 */
+		function doSignUp( user:CouchUser, roles:Array /* String[] */ = null ):void;		
+		/**
+		 * Logs the user in and creates an authenticated session. 
+		 * @param user CouchUser
+		 */
+		function doLogIn( user:CouchUser ):void;
+		/**
+		 * Logs the user out of an authenticated session. 
+		 * @param user CouchUser
+		 */
+		function doLogOut( user:CouchUser ):void;
 	}
 }

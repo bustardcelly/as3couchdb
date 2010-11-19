@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocumentService.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,6 @@ package com.custardbelly.as3couchdb.service
 	/**
 	 * CouchDocumentService is an ICouchDocumentService implementation that  communicates with a CouchDB instance to perform any actions related to a document.
 	 * @author toddanderson
-	 * 
 	 */
 	public class CouchDocumentService extends CouchService implements ICouchDocumentService
 	{

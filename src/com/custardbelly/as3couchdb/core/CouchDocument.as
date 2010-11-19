@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDocument.as</p>
- * <p>Version: 0.6</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -82,9 +82,17 @@ package com.custardbelly.as3couchdb.core
 		 */
 		public function CouchDocument( entity:CouchModelEntity = null )
 		{
-			super( entity );
-			_actionMediator = _mediator as ICouchDocumentActionMediator; 
+			super( entity ); 
 			_attachments = new Vector.<CouchAttachment>();
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		override protected function commitEntity( oldEntity:CouchModelEntity, newEntity:CouchModelEntity ):void
+		{
+			super.commitEntity( oldEntity, newEntity )
+			_actionMediator = _mediator as ICouchDocumentActionMediator;
 		}
 		
 		/**

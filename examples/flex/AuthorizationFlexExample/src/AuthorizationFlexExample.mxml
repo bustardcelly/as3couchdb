@@ -30,7 +30,7 @@
 			import com.custardbelly.couchdb.example.alert.LogInPanel;
 			import com.custardbelly.couchdb.example.model.ContactDatabase;
 			import com.custardbelly.couchdb.example.model.ContactDocument;
-			import com.custardbelly.couchdb.example.model.ContactSession;
+			import com.custardbelly.couchdb.example.model.ContactUser;
 			import com.custardbelly.couchdb.example.serialize.ContactDocumentReader;
 			
 			import mx.collections.ArrayCollection;
@@ -69,22 +69,20 @@
 				_login.showMessage( "Loading..." );
 				var username:String = _login.username;
 				var password:String = _login.password;
-				// Create a new session. This is stored in service and used for any
-				//	subsequent requests.
-				var session:CouchSession = new ContactSession();
-				session.addEventListener( CouchActionType.SESSION_CREATE, handleSessionCreate );
-				session.addEventListener( CouchEvent.FAULT, handleSessionFault );
-				session.create( new CouchUser( username, password ) );
+				var user:CouchUser = new ContactUser( username, password );
+				user.addEventListener( CouchActionType.LOGIN, handleContactLogin );
+				user.addEventListener( CouchEvent.FAULT, handleLoginFault );
+				user.login();
 			}
 			
 			// Fault in create of session.
-			private function handleSessionFault( evt:CouchEvent ):void
+			private function handleLoginFault( evt:CouchEvent ):void
 			{
 				var fault:CouchServiceFault = evt.data as CouchServiceFault;
 				_login.showMessage( "[ERROR] " + fault.message );
 			}
 			// Successful create of session.
-			private function handleSessionCreate( evt:CouchEvent ):void
+			private function handleContactLogin( evt:CouchEvent ):void
 			{
 				_login.showMessage( "Complete." );
 				PopUpManager.removePopUp( _login );
@@ -128,7 +126,7 @@
 				{
 					// Try and fill document from result.
 					// If faulted, document returned is not related to a ContactDocument.
-					contact = _contactReader.createDocumentFromResult( getQualifiedClassName( ContactDocument ), value ) as ContactDocument;
+					contact = _contactReader.createDocumentFromResult( value, getQualifiedClassName( ContactDocument ) ) as ContactDocument;
 				}
 				catch( e:Error )
 				{
@@ -171,6 +169,7 @@
 					if( contact )
 						contactsCollection.addItem( contact );
 				}
+				contactsList.dataProvider = contactsCollection;
 			}
 			
 			// Event handler for creation of document.

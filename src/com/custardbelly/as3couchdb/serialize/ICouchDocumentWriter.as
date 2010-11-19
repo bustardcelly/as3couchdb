@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchDocumentWriter.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,16 +36,16 @@ package com.custardbelly.as3couchdb.serialize
 	{
 		/**
 		 * Serializes document into a JSON encoded object that the CouchDB instance interprets. 
-		 * @param document CouchDocument
+		 * @param document Object
 		 * @return String
 		 */
-		function serializeDocumentForUpdate( document:CouchDocument ):String;
+		function serializeDocumentForUpdate( document:Object ):String;
 		
 		/**
 		 * Serializes document into a JSON encoded object that the CouchDB instance interprets. 
-		 * @param document CouchDocument
+		 * @param document Object
 		 * @return String
 		 */
-		function serializeDocumentForCreation( document:CouchDocument ):String;
+		function serializeDocumentForCreation( document:Object ):String;
 	}
 }

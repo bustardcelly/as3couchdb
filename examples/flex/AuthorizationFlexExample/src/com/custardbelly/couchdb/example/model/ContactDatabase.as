@@ -1,6 +1,7 @@
 package com.custardbelly.couchdb.example.model
 {
 	import com.custardbelly.as3couchdb.core.CouchDatabase;
+	import com.custardbelly.as3couchdb.core.CouchModelEntity;
 
 	[DocumentService(url="http://127.0.0.1:5984", name="contacts")]
 	[ServiceMediator(name="com.custardbelly.as3couchdb.mediator.CouchDatabaseActionMediator")]
@@ -15,9 +16,9 @@ package com.custardbelly.couchdb.example.model
 		/**
 		 * Constructor.
 		 */
-		public function ContactDatabase()
+		public function ContactDatabase( entity:CouchModelEntity = null )
 		{
-			super();
+			super( entity );
 		}
 	}
 }

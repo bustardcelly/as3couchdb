@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: ICouchService.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 package com.custardbelly.as3couchdb.service
 {
 	import com.custardbelly.as3couchdb.command.IRequestCommand;
+	import com.custardbelly.as3couchdb.core.CouchSession;
 	import com.custardbelly.as3couchdb.core.CouchUser;
 	import com.custardbelly.as3couchdb.responder.ICouchServiceResponder;
 
@@ -38,10 +39,37 @@ package com.custardbelly.as3couchdb.service
 	public interface ICouchService
 	{
 		/**
-		 * Creates a session for the service to use for authentication of requests. 
-		 * @param user CouchUser
+		 * Signs a new user up and creates a new authenticated session. 
+		 * @param name
+		 * @param password
+		 * @param roles Array
+		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
 		 */
-		function createSession( user:CouchUser, responder:ICouchServiceResponder = null ):IRequestCommand;
+		function signUp( name:String, password:String, roles:Array /* String[] */ = null, responder:ICouchServiceResponder = null ):IRequestCommand;
+		
+		/**
+		 * Logs a user in an creates a new authenticated session. 
+		 * @param name String
+		 * @param password String
+		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
+		 */
+		function logIn( name:String, password:String, responder:ICouchServiceResponder = null ):IRequestCommand;
+		
+		/**
+		 * Logs a user out of an authenticated session. 
+		 * @param user CouchUser
+		 * @param responder ICouchServiceResponder
+		 * @return IRequestCommand
+		 */
+		function logOut( user:CouchUser, responder:ICouchServiceResponder = null ):IRequestCommand;
+		
+		/**
+		 * Returns the instance of the session used for authentication when making document and database requests. 
+		 * @return CouchSession
+		 */
+		function getSession():CouchSession;
 		
 		/**
 		 * Performs any cleanup prior to garbage collection.

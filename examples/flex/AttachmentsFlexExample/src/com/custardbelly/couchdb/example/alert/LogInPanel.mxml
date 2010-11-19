@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="300" height="200"
+		 title="Log In:" 
+		 currentStateChange="handleStateChange();"
+		 currentState="normal">
+	
+	<fx:Script>
+		<![CDATA[
+			public static const SUBMIT:String = "submit";
+			
+			[Bindable] public var username:String;
+			[Bindable] public var password:String;
+			
+			private function handleStateChange():void
+			{
+				submitButton.visible = currentState == "normal";
+				messageField.visible = currentState == "pending";
+			}
+			
+			private function handleSubmit():void
+			{
+				dispatchEvent( new Event( LogInPanel.SUBMIT ) );
+			}
+			
+			public function showMessage( message:String ):void
+			{
+				currentState = "pending";
+				messageField.text = message;
+			} 
+		]]>
+	</fx:Script>
+	
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="pending" />
+	</s:states>
+	
+	<fx:Binding source="username" destination="nameField.text" twoWay="true" />
+	<fx:Binding source="password" destination="passwordField.text" twoWay="true" />
+	
+	<s:VGroup width="100%" 
+		verticalCenter="0" horizontalAlign="center"
+		paddingLeft="10" paddingRight="10">
+		
+		<s:HGroup width="100%" verticalAlign="bottom">
+			<s:Label text="Username:" width="60" />
+			<s:TextInput id="nameField" width="100%" />
+		</s:HGroup>
+		<s:HGroup width="100%" verticalAlign="bottom">
+			<s:Label text="Password:" width="60" />
+			<s:TextInput id="passwordField" width="100%" />
+		</s:HGroup>
+		
+		<s:Group width="100%">
+			<s:RichText id="messageField" 
+						width="100%" 
+						textAlign="center" 
+						/>
+			<s:Button id="submitButton" 
+					  label="OK"
+					  horizontalCenter="0"
+					  click="handleSubmit();" 
+					  />	
+		</s:Group>
+		
+	</s:VGroup>
+	
+</s:Panel>

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><!-- saved from url=(0014)about:internet --><html>
    <head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-      <title>All Classes - AS3CouchDB Library - as3couchdb-0.6</title>
+      <title>All Classes - AS3CouchDB Library - as3couchdb-0.7</title>
       <base target="classFrame">
       <link rel="stylesheet" href="style.css" type="text/css" media="screen">
       <link rel="stylesheet" href="print.css" type="text/css" media="print">
@@ -20,7 +20,7 @@
             <td><a href="com/custardbelly/as3couchdb/responder/AbstractDocumentResponder.html" title="com.custardbelly.as3couchdb.responder.AbstractDocumentResponder">AbstractDocumentResponder</a></td>
          </tr>
          <tr>
-            <td><a href="com/custardbelly/as3couchdb/mediator/helper/AttachmentRequestQueue.html" title="com.custardbelly.as3couchdb.mediator.helper.AttachmentRequestQueue">AttachmentRequestQueue</a></td>
+            <td><a href="com/custardbelly/as3couchdb/responder/AbstractUserResponder.html" title="com.custardbelly.as3couchdb.responder.AbstractUserResponder">AbstractUserResponder</a></td>
          </tr>
          <tr>
             <td><a href="com/custardbelly/as3couchdb/responder/BasicCouchResponder.html" title="com.custardbelly.as3couchdb.responder.BasicCouchResponder">BasicCouchResponder</a></td>
@@ -104,13 +104,22 @@
             <td><a href="com/custardbelly/as3couchdb/core/CouchSession.html" title="com.custardbelly.as3couchdb.core.CouchSession">CouchSession</a></td>
          </tr>
          <tr>
-            <td><a href="com/custardbelly/as3couchdb/mediator/CouchSessionActionMediator.html" title="com.custardbelly.as3couchdb.mediator.CouchSessionActionMediator">CouchSessionActionMediator</a></td>
-         </tr>
-         <tr>
             <td><a href="com/custardbelly/as3couchdb/net/CouchSessionResponse.html" title="com.custardbelly.as3couchdb.net.CouchSessionResponse">CouchSessionResponse</a></td>
          </tr>
          <tr>
             <td><a href="com/custardbelly/as3couchdb/core/CouchUser.html" title="com.custardbelly.as3couchdb.core.CouchUser">CouchUser</a></td>
+         </tr>
+         <tr>
+            <td><a href="com/custardbelly/as3couchdb/mediator/CouchUserActionMediator.html" title="com.custardbelly.as3couchdb.mediator.CouchUserActionMediator">CouchUserActionMediator</a></td>
+         </tr>
+         <tr>
+            <td><a href="com/custardbelly/as3couchdb/serialize/CouchUserReader.html" title="com.custardbelly.as3couchdb.serialize.CouchUserReader">CouchUserReader</a></td>
+         </tr>
+         <tr>
+            <td><a href="com/custardbelly/as3couchdb/service/CouchUserService.html" title="com.custardbelly.as3couchdb.service.CouchUserService">CouchUserService</a></td>
+         </tr>
+         <tr>
+            <td><a href="com/custardbelly/as3couchdb/serialize/CouchUserWriter.html" title="com.custardbelly.as3couchdb.serialize.CouchUserWriter">CouchUserWriter</a></td>
          </tr>
          <tr>
             <td><a href="com/custardbelly/as3couchdb/command/CreateDatabaseCommand.html" title="com.custardbelly.as3couchdb.command.CreateDatabaseCommand">CreateDatabaseCommand</a></td>
@@ -125,19 +134,22 @@
             <td><a href="com/custardbelly/as3couchdb/responder/CreateSessionResponder.html" title="com.custardbelly.as3couchdb.responder.CreateSessionResponder">CreateSessionResponder</a></td>
          </tr>
          <tr>
+            <td><a href="com/custardbelly/as3couchdb/responder/CreateUserResponder.html" title="com.custardbelly.as3couchdb.responder.CreateUserResponder">CreateUserResponder</a></td>
+         </tr>
+         <tr>
             <td><a href="com/custardbelly/as3couchdb/responder/DeleteDatabaseResponder.html" title="com.custardbelly.as3couchdb.responder.DeleteDatabaseResponder">DeleteDatabaseResponder</a></td>
          </tr>
          <tr>
             <td><a href="com/custardbelly/as3couchdb/responder/DeleteDocumentResponder.html" title="com.custardbelly.as3couchdb.responder.DeleteDocumentResponder">DeleteDocumentResponder</a></td>
          </tr>
          <tr>
+            <td><a href="com/custardbelly/as3couchdb/responder/DeleteSessionResponder.html" title="com.custardbelly.as3couchdb.responder.DeleteSessionResponder">DeleteSessionResponder</a></td>
+         </tr>
+         <tr>
             <td><a href="com/custardbelly/as3couchdb/service/ExInCouchRequest.html" title="com.custardbelly.as3couchdb.service.ExInCouchRequest">ExInCouchRequest</a></td>
          </tr>
          <tr>
             <td><a href="com/custardbelly/as3couchdb/service/HTTPCouchRequest.html" title="com.custardbelly.as3couchdb.service.HTTPCouchRequest">HTTPCouchRequest</a></td>
-         </tr>
-         <tr>
-            <td><a href="com/custardbelly/as3couchdb/service/HTTPSessionRequest.html" title="com.custardbelly.as3couchdb.service.HTTPSessionRequest">HTTPSessionRequest</a></td>
          </tr>
          <tr>
             <td><a href="com/custardbelly/as3couchdb/mediator/ICouchDatabaseActionMediator.html" title="com.custardbelly.as3couchdb.mediator.ICouchDatabaseActionMediator"><i>ICouchDatabaseActionMediator</i></a></td>
@@ -179,6 +191,15 @@
             <td><a href="com/custardbelly/as3couchdb/mediator/ICouchSessionActionMediator.html" title="com.custardbelly.as3couchdb.mediator.ICouchSessionActionMediator"><i>ICouchSessionActionMediator</i></a></td>
          </tr>
          <tr>
+            <td><a href="com/custardbelly/as3couchdb/mediator/ICouchUserActionMediator.html" title="com.custardbelly.as3couchdb.mediator.ICouchUserActionMediator"><i>ICouchUserActionMediator</i></a></td>
+         </tr>
+         <tr>
+            <td><a href="com/custardbelly/as3couchdb/serialize/ICouchUserReader.html" title="com.custardbelly.as3couchdb.serialize.ICouchUserReader"><i>ICouchUserReader</i></a></td>
+         </tr>
+         <tr>
+            <td><a href="com/custardbelly/as3couchdb/service/ICouchUserService.html" title="com.custardbelly.as3couchdb.service.ICouchUserService"><i>ICouchUserService</i></a></td>
+         </tr>
+         <tr>
             <td><a href="com/custardbelly/as3couchdb/command/IRequestCommand.html" title="com.custardbelly.as3couchdb.command.IRequestCommand"><i>IRequestCommand</i></a></td>
          </tr>
          <tr>
@@ -197,7 +218,16 @@
             <td><a href="com/custardbelly/as3couchdb/responder/ReadDocumentsFromViewResponder.html" title="com.custardbelly.as3couchdb.responder.ReadDocumentsFromViewResponder">ReadDocumentsFromViewResponder</a></td>
          </tr>
          <tr>
+            <td><a href="com/custardbelly/as3couchdb/responder/ReadUserResponder.html" title="com.custardbelly.as3couchdb.responder.ReadUserResponder">ReadUserResponder</a></td>
+         </tr>
+         <tr>
+            <td><a href="com/custardbelly/as3couchdb/util/SaltedPassword.html" title="com.custardbelly.as3couchdb.util.SaltedPassword">SaltedPassword</a></td>
+         </tr>
+         <tr>
             <td><a href="com/custardbelly/as3couchdb/responder/UpdateDocumentResponder.html" title="com.custardbelly.as3couchdb.responder.UpdateDocumentResponder">UpdateDocumentResponder</a></td>
+         </tr>
+         <tr>
+            <td><a href="com/custardbelly/as3couchdb/responder/UpdateUserResponder.html" title="com.custardbelly.as3couchdb.responder.UpdateUserResponder">UpdateUserResponder</a></td>
          </tr>
          <tr>
             <td><a href="com/custardbelly/as3couchdb/util/UUID.html" title="com.custardbelly.as3couchdb.util.UUID">UUID</a></td>
@@ -205,4 +235,4 @@
       </table>
    </body>
 </html>
-<!--<br/>Wed Oct 27 2010, 10:30 AM -04:00  -->
+<!--<br/>Fri Nov 19 2010, 06:01 AM -05:00  -->

@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchAttachment.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@ package com.custardbelly.as3couchdb.core
 	 * CouchAttachment is a respresentation of the JSON object of an attachment associated with a document. 
 	 * @author toddanderson
 	 */
+	[RemoteClass(alias="com.custardbelly.as3couchdb.core.CouchAttachment")]
 	public class CouchAttachment
 	{
 		protected var _fileName:String;
@@ -41,6 +42,7 @@ package com.custardbelly.as3couchdb.core
 		protected var _data:*;
 		protected var _url:String;
 		protected var _revisionPosition:String;
+		protected var _stub:Object;
 		protected var _document:CouchDocument;
 		protected var _isDirty:Boolean;
 		protected var _isDeleted:Boolean;
@@ -138,6 +140,19 @@ package com.custardbelly.as3couchdb.core
 		public function set revisionPosition( value:String ):void
 		{
 			_revisionPosition = value;
+		}
+		
+		/**
+		 * Accessor/Modifier for the result stub returned from read in of a document with this attachment. This is used in updating the document and maintaining previously held attachments. 
+		 * @return Object
+		 */
+		public function get stub():Object
+		{
+			return _stub;
+		}
+		public function set stub( value:Object ):void
+		{
+			_stub = value;
 		}
 		
 		/**

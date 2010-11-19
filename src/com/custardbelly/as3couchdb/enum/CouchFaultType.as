@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchFaultType.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,7 @@ package com.custardbelly.as3couchdb.enum
 	 */
 	public class CouchFaultType
 	{
+		public static const CONFLICT:String = "conflict";
 		public static const DATABASE_ALREADY_EXISTS:String = "databaseAlreadyExists";
 	}
 }

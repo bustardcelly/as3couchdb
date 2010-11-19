@@ -3,6 +3,7 @@ package
 	import com.bit101.components.InputText;
 	import com.bit101.components.Label;
 	import com.bit101.components.List;
+	import com.bit101.components.Panel;
 	import com.bit101.components.PushButton;
 	import com.bit101.components.Text;
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
@@ -13,11 +14,10 @@ package
 	import com.custardbelly.as3couchdb.event.CouchEvent;
 	import com.custardbelly.as3couchdb.mediator.CouchDatabaseActionMediator;
 	import com.custardbelly.as3couchdb.mediator.CouchDocumentActionMediator;
-	import com.custardbelly.as3couchdb.mediator.CouchSessionActionMediator;
+	import com.custardbelly.as3couchdb.mediator.CouchUserActionMediator;
 	import com.custardbelly.as3couchdb.service.HTTPCouchRequest;
 	import com.custardbelly.couchdb.example.model.ContactDatabase;
 	import com.custardbelly.couchdb.example.model.ContactDocument;
-	import com.custardbelly.couchdb.example.model.ContactSession;
 	import com.custardbelly.couchdb.example.serialize.ContactDocumentReader;
 	
 	import flash.display.Shape;
@@ -41,6 +41,7 @@ package
 		private var _lastNameField:InputText;
 		private var _emailField:InputText;
 		private var _addContactButton:PushButton;
+		private var _loginPanel:Panel;
 		
 		private var _database:ContactDatabase;
 		private var _contactReader:ContactDocumentReader;
@@ -54,7 +55,7 @@ package
 		private var includeHTTPRequest:HTTPCouchRequest; HTTPCouchRequest;
 		private var includeCouchDBMediator:CouchDatabaseActionMediator; CouchDatabaseActionMediator;
 		private var includeCouchDocMediator:CouchDocumentActionMediator; CouchDocumentActionMediator;
-		private var includeCouchSessMediator:CouchSessionActionMediator; CouchSessionActionMediator;
+		private var includeCouchUserMediator:CouchUserActionMediator; CouchUserActionMediator;
 		
 		/**
 		 * Constructor.
@@ -111,6 +112,11 @@ package
 			shape.graphics.moveTo( 10, 290 );
 			shape.graphics.lineTo( 260, 290 );
 			addChild( shape );
+			
+//			_loginWindow = new LoginWindow( this );
+//			_loginWindow.username = "toddanderson";
+//			_loginWindow.password = "6s0jo772c0kcnwg";
+//			_loginWindow.addEventListener( LoginWindow.LOGIN, handleLogin, false, 0, true );  
 		}
 		
 		/**
@@ -155,7 +161,7 @@ package
 			{
 				// Try and fill document from result.
 				// If faulted, document returned is not related to a ContactDocument.
-				contact = _contactReader.createDocumentFromResult( getQualifiedClassName( ContactDocument ), value ) as ContactDocument;
+				contact = _contactReader.createDocumentFromResult( value, getQualifiedClassName( ContactDocument ) ) as ContactDocument;
 			}
 			catch( e:Error )
 			{

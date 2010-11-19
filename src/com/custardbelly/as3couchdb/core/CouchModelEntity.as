@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchModelEntity.as</p>
- * <p>Version: 0.6</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -70,12 +70,25 @@ package com.custardbelly.as3couchdb.core
 		}
 		
 		/**
+		 * Disposes of any references held on this instance to offer up for GC.
+		 */
+		public function dispose():void
+		{
+			if( _request ) _request.dispose();
+			if( _mediator ) _mediator.dispose();
+			_request = null;
+			_mediator = null;
+		}
+		
+		/**
 		 * Clones this instance to re-use, such as the case when populating Documents from a data base request. 
 		 * @return CouchModelEntity
 		 */
 		public function clone():CouchModelEntity
 		{
-			var entity:CouchModelEntity = new CouchModelEntity( _baseUrl, _databaseName, _request, _mediator );
+			var requestInstance:Class = getDefinitionByName( getQualifiedClassName( _request ) ) as Class;
+			var mediatorInstance:Class = getDefinitionByName( getQualifiedClassName( _mediator ) ) as Class;
+			var entity:CouchModelEntity = new CouchModelEntity( _baseUrl, _databaseName, new requestInstance(), new mediatorInstance() );
 			return entity;
 		}
 		

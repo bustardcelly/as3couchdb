@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchSession.as</p>
- * <p>Version: 0.6</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,39 +30,30 @@ package com.custardbelly.as3couchdb.core
 	import com.custardbelly.as3couchdb.command.IRequestCommand;
 	import com.custardbelly.as3couchdb.mediator.ICouchSessionActionMediator;
 	import com.custardbelly.as3couchdb.mediator.IServiceMediator;
+	import com.custardbelly.as3couchdb.service.ICouchService;
 	
 	import flash.net.URLRequestHeader;
 	
 	/**
-	 * Dispatched upon successful create of a session for user within CouchDB instance. 
-	 */
-	[Event(name="sessionCreate", type="com.custardbelly.as3couchdb.enum.CouchActionType")]
-	/**
-	 * Dispatched upon fault from create of session. 
-	 */
-	[Event(name="fault", type="com.custardbelly.as3couchdb.event.CouchEvent")]
-	/**
 	 * CouchSession is a model for data related to a cookie authentication for a session based on a time limit. 
 	 * @author toddanderson
 	 */
-	public class CouchSession extends CouchModel
+	public class CouchSession
 	{
-		protected var _timeLimit:uint = 600000 /* default 10 minutes for couchdb */;
+		protected var _timeLimit:uint; /* default 10 minutes for couchdb */
 		protected var _startTime:Number;
 		protected var _user:CouchUser;
 		protected var _cookie:String;
 		protected var _headers:Array; // URLRequestHeader[]
 		
-		protected var _actionMediator:ICouchSessionActionMediator;
+		protected var _service:ICouchService;
 		
 		/**
-		 * Constructor. 
-		 * @param entity CouchModelEntity Optional CouchModelEntity instance. If supplied, the properties will be resolved to that entity. If not, metadata will be parsed to construct entity.
+		 * Constructor.
 		 */
-		public function CouchSession( entity:CouchModelEntity = null )
+		public function CouchSession() 
 		{
-			super( entity );
-			_actionMediator = _mediator as ICouchSessionActionMediator;
+			_timeLimit = 600000;
 		}
 		
 		/**
@@ -88,34 +79,25 @@ package com.custardbelly.as3couchdb.core
 		}
 		
 		/**
-		 * @private
-		 * 
-		 * Renews the cookie for a session.
-		 * @param pendingCommand The pending command in chain after renewal.
-		 * @return IRequestCommand
-		 */
-		as3couchdb_internal function renew():IRequestCommand
-		{
-			return _actionMediator.createRenewRequest( _user );
-		}
-		
-		/**
-		 * Creates a new session based on user credentials. 
-		 * @param user CouchUser
-		 */
-		public function create( user:CouchUser ):void
-		{
-			_user = user;
-			_actionMediator.doCreate( _user );
-		}
-		
-		/**
 		 * Returns flag of session having ended base on time limit. 
 		 * @return Boolean
 		 */
 		public function hasExpired():Boolean
 		{
-			return ( new Date().getTime() - _startTime ) > _timeLimit;
+			return ( _cookie != null ) && ( ( new Date().getTime() - _startTime ) > _timeLimit );
+		}
+		
+		/**
+		 * Accessor/Modifier for associated user with the authenticated session. 
+		 * @return CouchUser
+		 */
+		public function get user():CouchUser
+		{
+			return _user;
+		}
+		public function set user( value:CouchUser ):void
+		{
+			_user = value;
 		}
 		
 		/**
@@ -129,8 +111,11 @@ package com.custardbelly.as3couchdb.core
 		public function set cookie( value:String ):void
 		{
 			_cookie = value;
-			setTime();
-			createHeaders();
+			if( _cookie ) 
+			{
+				setTime();
+				createHeaders();	
+			}
 		}
 		
 		/**
@@ -157,6 +142,17 @@ package com.custardbelly.as3couchdb.core
 				createHeaders();
 			
 			return _headers;
+		}
+		
+		/**
+		 * Clears the session of persistant values.
+		 */
+		public function clear():void
+		{
+			_cookie = null;
+			_user = null;
+			_startTime = 0;
+			_headers = null;
 		}
 	}
 }

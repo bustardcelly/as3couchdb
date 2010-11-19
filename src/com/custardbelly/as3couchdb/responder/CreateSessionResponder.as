@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CreateSessionResponder.as</p>
- * <p>Version: 0.5</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,59 +28,58 @@ package com.custardbelly.as3couchdb.responder
 {
 	import com.custardbelly.as3couchdb.core.CouchServiceFault;
 	import com.custardbelly.as3couchdb.core.CouchServiceResult;
+	import com.custardbelly.as3couchdb.core.CouchUser;
+	import com.custardbelly.as3couchdb.enum.CouchActionType;
 	import com.custardbelly.as3couchdb.net.CouchSessionResponse;
-	import com.custardbelly.as3couchdb.serialize.CouchResponseReader;
-	import com.custardbelly.as3couchdb.serialize.ICouchResponseReader;
-
+	
 	/**
-	 * CreateSessionResponder is an action responder for the request to start a new session on CouchDB.
+	 * CreateSessionResponder is a service responder for the login of a user that results successfully in the creation of an authenticated session. 
 	 * @author toddanderson
 	 */
-	public class CreateSessionResponder extends BasicCouchResponder
+	public class CreateSessionResponder extends AbstractUserResponder
 	{
-		/**
-		 * The ICouchResponseReader that handles determining the validity of the response. 
-		 */
-		protected var _reader:ICouchResponseReader;
+		protected var _action:String;
 		
 		/**
 		 * Constructor. 
-		 * @param resultFunction Function The method to invoke on success of response.
-		 * @param faultFunction Function The method to invoke on fault of response.
+		 * @param user CouchUser
+		 * @param action String
+		 * @param responder ICouchServiceResponder
+		 * @see AbstractUserResponder
 		 */
-		public function CreateSessionResponder( resultFunction:Function, faultFunction:Function )
+		public function CreateSessionResponder( user:CouchUser, action:String, responder:ICouchServiceResponder )
 		{
-			super( resultFunction, faultFunction );
-			_reader = new CouchResponseReader();
+			super( user, responder );
+			_action = action;
 		}
 		
 		/**
-		 * @private
-		 * 
-		 * Validates the result as being a successful error return or not. 
-		 * @param result CouchServicResult
-		 * @return Boolean
+		 * @inheritDoc
 		 */
-		protected function handleAsResultError( value:CouchServiceResult ):Boolean
+		override protected function handleAsResultError( value:CouchServiceResult ):Boolean
 		{
-			var result:Object = ( value.data as CouchSessionResponse ).result;
+			var result:Object = value.data;
 			if( _reader.isResultAnError( result ) )
 			{
-				handleFault( new CouchServiceFault( result["error"], 0, result["reason"] ) );
+				// Determine result object based on supplied data. Since we are logging into a Session, a CouchSessionResponse may be provided in CouchServiceResult.
+				var resultObj:Object = ( result is CouchSessionResponse ) ? ( result as CouchSessionResponse ).result : result;
+				handleFault( new CouchServiceFault( resultObj["error"], 0, resultObj["reason"] ) );
 				return true;
 			}
 			return false;	
-		}					
+		}			
 		
 		/**
-		 * @inherit
+		 * @inheritDoc
 		 */
 		override public function handleResult( value:CouchServiceResult ):void
 		{
-			// Check if we need to handle as error.
 			if( !handleAsResultError( value ) )
 			{
-				super.handleResult( value );	
+				// update login session of user.
+				var sessionResponse:CouchSessionResponse = ( value.data as CouchSessionResponse );
+				_reader.updateFromLogin( _user, sessionResponse.result );
+				if( _responder ) _responder.handleResult( new CouchServiceResult( _action, sessionResponse ) );
 			}
 		}
 	}

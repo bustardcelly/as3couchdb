@@ -1,7 +1,7 @@
 /**
  * <p>Original Author: toddanderson</p>
  * <p>Class File: CouchDatabaseActionMediator.as</p>
- * <p>Version: 0.6</p>
+ * <p>Version: 0.7</p>
  *
  * <p>Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -83,6 +83,16 @@ package com.custardbelly.as3couchdb.mediator
 		}
 		
 		/**
+		 * @inheritDoc
+		 */
+		public function dispose():void
+		{
+			_database = null;
+			_service = null;
+			_serviceResponder = null;
+		}
+		
+		/**
 		 * @private
 		 * 
 		 * Responder method for a successful service operation. 
@@ -114,9 +124,10 @@ package com.custardbelly.as3couchdb.mediator
 			// Create responder for creation operation with basic responder.
 			var readResponder:ICouchServiceResponder = new ReadDatabaseResponder( _database, CouchActionType.CREATE, _serviceResponder );
 			// Invoke service to create database.
-			var createRequestCommand:IRequestCommand = _service.createDatabase( _database.databaseName );
+			var createRequestCommand:IRequestCommand = _service.createDatabase( _database.databaseName, _serviceResponder );
 			var readRequestCommand:IRequestCommand = _service.readDatabase( _database.databaseName, readResponder );
 			createRequestCommand.nextCommand = readRequestCommand;
+			createRequestCommand.ceaseOnFault = true;
 			createRequestCommand.execute();
 		}
 		
@@ -187,7 +198,7 @@ package com.custardbelly.as3couchdb.mediator
 		public function doGetDocumentsFromView( designDocumentName:String, viewName:String, keyValue:String,  documentClass:String, documentEntity:CouchModelEntity = null ):void
 		{
 			var serviceResponder:ReadDocumentsFromViewResponder = new ReadDocumentsFromViewResponder( _serviceResponder, documentClass, documentEntity );
-			_service.getDocumentsFromView( _database.databaseName, viewName,  designDocumentName, documentEntity, keyValue, serviceResponder ).execute();
+			_service.getDocumentsFromView( _database.databaseName, viewName,  designDocumentName, keyValue, serviceResponder ).execute();
 		}
 	}
 }
